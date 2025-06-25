@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreProviderServiceRequest;
-use App\Http\Requests\UpdateProviderServiceRequest;
+use App\Http\Requests\ServiceProvider\StoreProviderServiceRequest;
+use App\Http\Requests\ServiceProvider\UpdateProviderServiceRequest;
 use App\Models\ProviderService;
 use Illuminate\Http\Request;
 

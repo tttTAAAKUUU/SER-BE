@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Address;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreServicesRequest extends FormRequest
+class StoreAddressRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class StoreServicesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'address' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'address_location' => 'required|string|max:255',
+            'state' => 'required|string|max:255',
+            'zip' => 'required|string|max:255',
         ];
     }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
-use App\Http\Requests\StoreServiceProviderProfileRequest;
+use App\Http\Requests\ServiceProvider\StoreServiceProviderProfileRequest;
 use App\Http\Resources\ServiceProviderProfileResource;
 use App\Models\ServiceProviderProfile;
 use App\Models\User;
