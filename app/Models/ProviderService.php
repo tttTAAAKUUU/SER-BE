@@ -10,14 +10,16 @@ class ProviderService extends Model
     /** @use HasFactory<\Database\Factories\ProviderServiceFactory> */
     use HasFactory;
 
+    protected $table = 'provider_services';
+
     protected $fillable = [
-        'service_provider_id',
+        'service_provider_profile_id',
         'service_id',
         'price',
         'description',
     ];
 
-    public function serviceProvider()
+    public function serviceProviderProfile()
     {
         return $this->belongsTo(ServiceProviderProfile::class);
     }

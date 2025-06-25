@@ -10,6 +10,8 @@ class ServiceProviderProfile extends Model
     /** @use HasFactory<\Database\Factories\ServiceProviderProfileFactory> */
     use HasFactory;
 
+    protected $table = 'service_provider_profiles';
+
     protected $fillable = [
         'user_id',
         'address_id',
