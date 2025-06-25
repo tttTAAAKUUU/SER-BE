@@ -22,10 +22,8 @@ class StoreServicesRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => 'required|exists:users,id',
             'provider_service_id' => 'required|exists:provider_services,id',
             'notes' => 'nullable|string',
-            'requested_at' => 'required|date',
             'start_at' => 'required|date',
         ];
     }

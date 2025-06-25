@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('provider_service_id')->constrained()->cascadeOnDelete();
-            $table->dateTime('requested_at');
-            $table->dateTime('start_at')->nullable();
+            $table->dateTime('start_at');
             $table->dateTime('completed_at')->nullable();
             $table->dateTime('cancelled_at')->nullable();
             $table->dateTime('rejected_at')->nullable();

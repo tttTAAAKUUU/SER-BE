@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\User\StoreUserProfileRequest;
 use App\Http\Resources\Auth\UserProfileResource;
+use App\Models\Address;
 use App\Models\User;
 use App\Models\UserProfile;
 use Illuminate\Http\Request;
@@ -23,8 +24,19 @@ class UsersController extends Controller
                 'password' => Hash::make($request->password),
             ]);
 
+            $address = Address::create([
+                'user_id' => $user->id,
+                'street_address' => $request->address['street_address'],
+                'suburb' => $request->address['suburb'],
+                'city' => $request->address['city'],
+                'lat' => $request->address['lat'],
+                'lng' => $request->address['lng'],
+                'postal_code' => $request->address['postal_code'],
+            ]);
+
             UserProfile::create([
                 'user_id' => $user->id,
+                'address_id' => $address->id,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'phone' => $request->phone,

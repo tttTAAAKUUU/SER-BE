@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Http\Requests\User\UpdateServiceRequest;
 use App\Models\Service;
 
 class ServicesController extends Controller
@@ -17,13 +19,10 @@ class ServicesController extends Controller
         return response()->json(['service' => $service]);
     }
 
-    public function update($id)
+    public function update(UpdateServiceRequest $request, $id)
     {
-        // TODO: Implement update logic with proper request validation
-        $service = Service::find($id);
-        if (!$service) {
-            return response()->json(['message' => 'Service not found'], 404);
-        }
+        $service = Service::findOrFail($id);
+        $service->update($request->all());
         return response()->json(['service' => $service]);
     }
 

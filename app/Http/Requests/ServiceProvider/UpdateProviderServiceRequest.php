@@ -22,7 +22,6 @@ class UpdateProviderServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'service_provider_id' => 'required|exists:service_providers,id',
             'service_id' => 'required|exists:services,id',
             'price' => 'required|numeric',
             'description' => 'nullable|string',

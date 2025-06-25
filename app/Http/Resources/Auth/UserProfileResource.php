@@ -24,6 +24,14 @@ class UserProfileResource extends JsonResource
             'dob' => $this->userProfile->dob,
             'bio' => $this->userProfile->bio,
             'gender' => $this->userProfile->gender,
+            'address' => [
+                'street_address' => $this->userProfile->address->street_address,
+                'suburb' => $this->userProfile->address->suburb,
+                'city' => $this->userProfile->address->city,
+                'lat' => $this->userProfile->address->lat,
+                'lng' => $this->userProfile->address->lng,
+                'postal_code' => $this->userProfile->address->postal_code,
+            ],
         ];
     }
 }

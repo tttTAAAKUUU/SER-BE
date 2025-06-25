@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\ServiceProvidersController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\UsersController;
 use App\Http\Controllers\ProviderServicesController;
+use App\Http\Controllers\ServiceRequestsController;
 use App\Http\Controllers\ServicesController;
 
 // Public routes
@@ -22,6 +23,14 @@ Route::group(['prefix' => 'users'], function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/profile', [UsersController::class, 'profile']);
         Route::post('/logout', [UsersController::class, 'logout']);
+
+        Route::group(['prefix' => 'service-requests'], function () {
+            Route::get('/', [ServiceRequestsController::class, 'index']);
+            Route::post('/', [ServiceRequestsController::class, 'store']);
+            Route::get('/{id}', [ServiceRequestsController::class, 'show']);
+            Route::put('/{id}', [ServiceRequestsController::class, 'update']);
+            Route::delete('/{id}', [ServiceRequestsController::class, 'destroy']);
+        });
     });
 });
 

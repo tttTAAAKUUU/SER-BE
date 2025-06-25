@@ -36,14 +36,14 @@ class ProviderServicesController extends Controller
 
     public function update(UpdateProviderServiceRequest $request, $id)
     {
-        $service = ProviderService::find($id);
+        $service = ProviderService::findOrFail($id);
         $service->update($request->all());
-        return response()->json(['service' => $service]);
+        return new ServicesResource($service);
     }
 
     public function destroy($id)
     {
-        ProviderService::find($id)->delete();
+        ProviderService::findOrFail($id)->delete();
         return response()->json(['message' => 'Provider service deleted successfully']);
     }
 }
