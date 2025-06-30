@@ -4,8 +4,9 @@ use App\Http\Controllers\Auth\ServiceProvidersController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\UsersController;
 use App\Http\Controllers\ProviderServicesController;
-use App\Http\Controllers\ServiceRequestsController;
 use App\Http\Controllers\ServicesController;
+use App\Http\Controllers\ServiceProvider\ProviderServiceRequestsController;
+use App\Http\Controllers\User\UserServiceRequestsController;
 
 // Public routes
 Route::group(['prefix' => 'services'], function () {
@@ -24,12 +25,16 @@ Route::group(['prefix' => 'users'], function () {
         Route::get('/profile', [UsersController::class, 'profile']);
         Route::post('/logout', [UsersController::class, 'logout']);
 
+        Route::group(['prefix' => 'services'], function () {
+            Route::get('/', [ServicesController::class, 'getProviderServices']);
+        });
+
         Route::group(['prefix' => 'service-requests'], function () {
-            Route::get('/', [ServiceRequestsController::class, 'index']);
-            Route::post('/', [ServiceRequestsController::class, 'store']);
-            Route::get('/{id}', [ServiceRequestsController::class, 'show']);
-            Route::put('/{id}', [ServiceRequestsController::class, 'update']);
-            Route::delete('/{id}', [ServiceRequestsController::class, 'destroy']);
+            Route::get('/', [UserServiceRequestsController::class, 'index']);
+            Route::post('/', [UserServiceRequestsController::class, 'store']);
+            Route::get('/{id}', [UserServiceRequestsController::class, 'show']);
+            Route::put('/{id}', [UserServiceRequestsController::class, 'update']);
+            Route::delete('/{id}', [UserServiceRequestsController::class, 'destroy']);
         });
     });
 });
@@ -48,6 +53,12 @@ Route::group(['prefix' => 'service-providers'], function () {
             Route::post('/', [ProviderServicesController::class, 'store']);
             Route::put('/{id}', [ProviderServicesController::class, 'update']);
             Route::delete('/{id}', [ProviderServicesController::class, 'destroy']);
+        });
+
+        Route::group(['prefix' => 'service-requests'], function () {
+            Route::get('/', [ProviderServiceRequestsController::class, 'index']);
+            Route::get('/{id}', [ProviderServiceRequestsController::class, 'show']);
+            Route::put('/{id}', [ProviderServiceRequestsController::class, 'update']);
         });
 
         Route::post('/logout', [ServiceProvidersController::class, 'logout']);

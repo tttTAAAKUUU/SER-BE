@@ -5,7 +5,7 @@ namespace App\Http\Resources\ServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ServicesResource extends JsonResource
+class ProviderServicesResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -21,7 +21,7 @@ class ServicesResource extends JsonResource
             'service' => [
                 'name' => $this->service->name,
                 'description' => $this->service->description,
-            ],
+            ]
         ];
     }
 }

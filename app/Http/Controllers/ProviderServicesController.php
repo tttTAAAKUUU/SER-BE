@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ServiceProvider\StoreProviderServiceRequest;
 use App\Http\Requests\ServiceProvider\UpdateProviderServiceRequest;
-use App\Http\Resources\ServiceProvider\ServicesResource;
+use App\Http\Resources\ServiceProvider\ProviderServicesResource;
 use App\Models\ProviderService;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,14 +12,19 @@ class ProviderServicesController extends Controller
 {
     public function index()
     {
-        $services = ProviderService::with('service', 'serviceProviderProfile')->get();
-        return ServicesResource::collection($services);
+        $services = ProviderService::select('provider_services.*')
+            ->with('service')
+            ->join('service_provider_profiles', 'service_provider_profiles.id', '=', 'provider_services.service_provider_profile_id')
+            ->where('service_provider_profiles.id', Auth::user()->serviceProviderProfile->id)
+            ->get();
+
+        return ProviderServicesResource::collection($services);
     }
 
     public function show($id)
     {
         $service = ProviderService::with('service')->find($id);
-        return response()->json(['service' => $service]);
+        return new ProviderServicesResource($service);
     }
 
     public function store(StoreProviderServiceRequest $request)

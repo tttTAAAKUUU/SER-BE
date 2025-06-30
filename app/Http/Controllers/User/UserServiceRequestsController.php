@@ -1,23 +1,23 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreServicesRequest;
-use App\Http\Resources\User\ServiceRequestResource;
+use App\Http\Resources\User\UserServiceRequestResource;
 use App\Models\ServiceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class ServiceRequestsController extends Controller
+class UserServiceRequestsController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $serviceRequests = ServiceRequest::where('user_id', Auth::user()->id)->get();
-        $serviceRequests->load('providerService.service');
-        return ServiceRequestResource::collection($serviceRequests);
+        $serviceRequests = ServiceRequest::where('user_id', Auth::user()->id)->with('providerService.service')->get();
+        return UserServiceRequestResource::collection($serviceRequests);
     }
 
     /**
@@ -40,7 +40,7 @@ class ServiceRequestsController extends Controller
      */
     public function show(ServiceRequest $serviceRequest)
     {
-        return new ServiceRequestResource($serviceRequest);
+        return new UserServiceRequestResource($serviceRequest);
     }
 
     /**
