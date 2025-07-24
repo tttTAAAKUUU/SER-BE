@@ -1,0 +1,21 @@
+---
+deployment:
+  tasks:
+    - export RELEASE_DIR="${DEPLOYMENT_DOCUMENT_ROOT}"
+    - cd $RELEASE_DIR
+
+    # Set correct PHP version if needed (uncomment and change version)
+    # - source /opt/cpanel/ea-php81/enable
+
+    # Install composer dependencies
+    - /opt/cpanel/composer/bin/composer install --no-dev --optimize-autoloader
+
+    # Set correct permissions
+    - find storage -type d -exec chmod 775 {} \;
+    - find storage -type f -exec chmod 664 {} \;
+    - chmod -R 775 bootstrap/cache
+
+    # Cache configuration
+    - php artisan config:cache
+    - php artisan route:cache
+    - php artisan view:cache
