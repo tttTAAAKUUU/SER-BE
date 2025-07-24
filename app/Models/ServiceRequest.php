@@ -13,6 +13,7 @@ class ServiceRequest extends Model
     protected $fillable = [
         'user_id',
         'provider_service_id',
+        'location_id',
         'start_at',
         'completed_at',
         'cancelled_at',
@@ -30,5 +31,10 @@ class ServiceRequest extends Model
     public function providerService()
     {
         return $this->belongsTo(ProviderService::class);
+    }
+
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
     }
 }

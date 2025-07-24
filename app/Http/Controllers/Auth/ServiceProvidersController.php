@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\ServiceProvider\StoreServiceProviderProfileRequest;
 use App\Http\Resources\Auth\ServiceProviderProfileResource;
-use App\Models\Address;
 use App\Models\ServiceProviderProfile;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -27,19 +26,8 @@ class ServiceProvidersController extends Controller
                 'password' => Hash::make($request->password),
             ]);
 
-            $address = Address::create([
-                'user_id' => $user->id,
-                'street_address' => $request->address['street_address'],
-                'suburb' => $request->address['suburb'],
-                'city' => $request->address['city'],
-                'lat' => $request->address['lat'],
-                'lng' => $request->address['lng'],
-                'postal_code' => $request->address['postal_code'],
-            ]);
-
             ServiceProviderProfile::create([
                 'user_id' => $user->id,
-                'address_id' => $address->id,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'phone' => $request->phone,
@@ -60,7 +48,7 @@ class ServiceProvidersController extends Controller
     public function profile(Request $request)
     {
         $user = $request->user();
-        $user->load('serviceProviderProfile', 'serviceProviderProfile.address');
+        $user->load('serviceProviderProfile');
         return  new ServiceProviderProfileResource($user);
     }
 

@@ -18,10 +18,6 @@ class ServicesResource extends JsonResource
             'id' => $this->id,
             'price' => $this->price,
             'notes' => $this->description,
-            'service' => [
-                'name' => $this->service->name,
-                'description' => $this->service->description,
-            ],
         ];
     }
 }

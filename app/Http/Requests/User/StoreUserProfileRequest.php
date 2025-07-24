@@ -29,12 +29,6 @@ class StoreUserProfileRequest extends FormRequest
             'phone' => 'required|string|max:255',
             'dob' => 'required|date',
             'gender' => 'required|in:male,female,other',
-            'address.street_address' => 'required|string|max:255',
-            'address.suburb' => 'required|string|max:255',
-            'address.city' => 'required|string|max:255',
-            'address.lat' => 'required|numeric',
-            'address.lng' => 'required|numeric',
-            'address.postal_code' => 'required|string|max:10',
         ];
     }
 }

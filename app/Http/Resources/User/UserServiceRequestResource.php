@@ -23,15 +23,15 @@ class UserServiceRequestResource extends JsonResource
                 'first_name' => $this->providerService->serviceProviderProfile->first_name,
                 'last_name' => $this->providerService->serviceProviderProfile->last_name,
                 'phone' => $this->providerService->serviceProviderProfile->phone,
-                'address' => [
-                    'street_address' => $this->providerService->serviceProviderProfile->address->street_address,
-                    'suburb' => $this->providerService->serviceProviderProfile->address->suburb,
-                    'city' => $this->providerService->serviceProviderProfile->address->city,
-                    'lat' => $this->providerService->serviceProviderProfile->address->lat,
-                    'lng' => $this->providerService->serviceProviderProfile->address->lng,
-                    'postal_code' => $this->providerService->serviceProviderProfile->address->postal_code,
-                ],
             ],
+            'location' => [
+                    'street_address' => $this->location->street_address,
+                    'suburb' => $this->location->suburb,
+                    'city' => $this->location->city,
+                    'lat' => $this->location->lat,
+                    'lng' => $this->location->lng,
+                    'postal_code' => $this->location->postal_code,
+                ],
             'service' => [
                 'name' => $this->providerService->service->name,
                 'description' => $this->providerService->service->description,

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\ServiceProvider;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreServicesRequest;
 use App\Http\Resources\ServiceProvider\ProviderServiceRequestResource;
+use App\Http\Resources\User\UserServiceRequestResource;
 use App\Models\ServiceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,15 +17,13 @@ class ProviderServiceRequestsController extends Controller
      */
     public function index()
     {
-        $serviceRequests = ServiceRequest::with('providerService.service', 'user', 'user.userProfile', 'user.userProfile.address')
+        $serviceRequests = ServiceRequest::with('providerService.service', 'user', 'user.userProfile', 'location')
             ->join('provider_services', 'provider_services.id', '=', 'service_requests.provider_service_id')
             ->join('service_provider_profiles', 'service_provider_profiles.id', '=', 'provider_services.service_provider_profile_id')
             ->join('users', 'users.id', '=', 'service_requests.user_id')
             ->join('user_profiles', 'user_profiles.user_id', '=', 'users.id')
             ->where('service_provider_profiles.user_id', Auth::user()->id)
             ->get();
-
-            // dd($serviceRequests->toArray());
 
         return ProviderServiceRequestResource::collection($serviceRequests);
     }
@@ -49,7 +48,7 @@ class ProviderServiceRequestsController extends Controller
      */
     public function show(ServiceRequest $serviceRequest)
     {
-        return new ServiceRequestResource($serviceRequest);
+        return new UserServiceRequestResource($serviceRequest);
     }
 
     /**

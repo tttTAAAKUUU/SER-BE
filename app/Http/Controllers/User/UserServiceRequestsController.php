@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreServicesRequest;
 use App\Http\Resources\User\UserServiceRequestResource;
+use App\Models\Location;
 use App\Models\ServiceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,7 +17,7 @@ class UserServiceRequestsController extends Controller
      */
     public function index()
     {
-        $serviceRequests = ServiceRequest::where('user_id', Auth::user()->id)->with('providerService.service')->get();
+        $serviceRequests = ServiceRequest::where('user_id', Auth::user()->id)->with('providerService.service', 'location')->get();
         return UserServiceRequestResource::collection($serviceRequests);
     }
 
@@ -25,9 +26,20 @@ class UserServiceRequestsController extends Controller
      */
     public function store(StoreServicesRequest $request)
     {
+
+        $location = Location::create([
+            'street_address' => $request->location['street_address'],
+            'suburb' => $request->location['suburb'],
+            'city' => $request->location['city'],
+            'lat' => $request->location['lat'],
+            'lng' => $request->location['lng'],
+            'postal_code' => $request->location['postal_code'],
+        ]);
+
         $serviceRequest = ServiceRequest::create([
             'user_id' => Auth::user()->id,
             'provider_service_id' => $request->provider_service_id,
+            'location_id' => $location->id,
             'start_at' => $request->start_at,
             'notes' => $request->notes,
         ]);
