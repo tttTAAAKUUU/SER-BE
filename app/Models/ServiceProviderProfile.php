@@ -17,6 +17,7 @@ class ServiceProviderProfile extends Model
         'phone',
         'dob',
         'gender',
+        'profile_image',
         'bio',
     ];
 

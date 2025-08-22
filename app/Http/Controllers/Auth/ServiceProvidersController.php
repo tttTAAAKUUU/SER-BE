@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\ServiceProvider\StoreServiceProviderProfileRequest;
+use App\Http\Requests\ServiceProvider\UpdateServiceProviderProfileRequest;
 use App\Http\Resources\Auth\ServiceProviderProfileResource;
 use App\Models\ServiceProviderProfile;
 use App\Models\User;
@@ -50,6 +51,18 @@ class ServiceProvidersController extends Controller
         $user = $request->user();
         $user->load('serviceProviderProfile');
         return  new ServiceProviderProfileResource($user);
+    }
+
+    public function update(UpdateServiceProviderProfileRequest $request)
+    {
+        $serviceProvider = $request->user()->serviceProviderProfile;
+
+        if ($request->hasFile('profile_image')) {
+            $serviceProvider->profile_image = $request->file('profile_image')->store('public/profile_images');
+        }
+
+        $serviceProvider->update($request->all());
+        return response()->json(['message' => 'Service provider updated successfully']);
     }
 
     public function login(LoginRequest $request)

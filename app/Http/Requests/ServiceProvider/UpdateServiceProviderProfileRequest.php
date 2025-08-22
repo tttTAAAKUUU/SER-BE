@@ -27,6 +27,7 @@ class UpdateServiceProviderProfileRequest extends FormRequest
             'phone' => 'required|string|max:255',
             'dob' => 'required|date',
             'gender' => 'required|in:male,female,other',
+            'profile_image' => 'nullable|image',
             'bio' => 'nullable|string',
         ];
     }
