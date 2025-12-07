@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Service\Service;
+use App\Models\ServiceProvider\ProviderService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class ServiceProviderProfile extends Model
 {
@@ -24,5 +28,10 @@ class ServiceProviderProfile extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function services(): HasManyThrough
+    {
+        return $this->hasManyThrough(Service::class, ProviderService::class, 'service_id', 'provider_service_id');
     }
 }

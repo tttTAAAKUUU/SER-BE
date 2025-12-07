@@ -24,7 +24,7 @@ class StoreServicesRequest extends FormRequest
         return [
             'provider_service_id' => 'required|exists:provider_services,id',
             'notes' => 'nullable|string',
-            'start_at' => 'required|date',
+            'starts_at' => 'required|date',
         ];
     }
 }

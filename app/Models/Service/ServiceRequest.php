@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Service;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +14,7 @@ class ServiceRequest extends Model
         'user_id',
         'provider_service_id',
         'location_id',
-        'start_at',
+        'starts_at',
         'completed_at',
         'cancelled_at',
         'rejected_at',

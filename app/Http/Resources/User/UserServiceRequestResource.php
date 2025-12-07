@@ -16,7 +16,7 @@ class UserServiceRequestResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'start_at' => $this->start_at,
+            'starts_at' => $this->starts_at,
             'notes' => $this->providerService->description,
             'status' => $this->status,
             'serviceProvider' => [

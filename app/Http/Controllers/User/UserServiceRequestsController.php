@@ -40,7 +40,7 @@ class UserServiceRequestsController extends Controller
             'user_id' => Auth::user()->id,
             'provider_service_id' => $request->provider_service_id,
             'location_id' => $location->id,
-            'start_at' => $request->start_at,
+            'starts_at' => $request->starts_at,
             'notes' => $request->notes,
         ]);
 

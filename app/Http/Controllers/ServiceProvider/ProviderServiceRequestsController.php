@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreServicesRequest;
 use App\Http\Resources\ServiceProvider\ProviderServiceRequestResource;
 use App\Http\Resources\User\UserServiceRequestResource;
-use App\Models\ServiceRequest;
+use App\Models\Service\ServiceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -36,7 +36,7 @@ class ProviderServiceRequestsController extends Controller
         $serviceRequest = ServiceRequest::create([
             'user_id' => Auth::user()->id,
             'provider_service_id' => $request->provider_service_id,
-            'start_at' => $request->start_at,
+            'starts_at' => $request->starts_at,
             'notes' => $request->notes,
         ]);
 

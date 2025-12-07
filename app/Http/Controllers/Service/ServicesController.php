@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\User\UpdateServiceRequest;
 use App\Http\Resources\ServiceProvider\ProviderServicesResource;
 use App\Http\Resources\ServicesResource;
-use App\Models\ProviderService;
-use App\Models\Service;
+use App\Models\ServiceProvider\ProviderService;
+use App\Models\Service\Service;
 
 class ServicesController extends Controller
 {

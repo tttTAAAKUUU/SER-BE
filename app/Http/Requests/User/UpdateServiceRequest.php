@@ -22,11 +22,12 @@ class UpdateServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'completed_at' => 'nullable|date',
+            'starts_at' => 'required|date',
             'cancelled_at' => 'nullable|date',
             'rejected_at' => 'nullable|date',
             'accepted_at' => 'nullable|date',
-            'start_at' => 'required|date',
+            'started_at' => 'required|date',
+            'completed_at' => 'nullable|date',
             'notes' => 'nullable|string',
         ];
     }
