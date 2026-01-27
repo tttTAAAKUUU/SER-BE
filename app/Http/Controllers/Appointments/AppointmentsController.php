@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Appointments;
 
 use App\Http\Controllers\Controller;
+use App\Models\Appointment\Appointment;
 use Illuminate\Http\Request;
 
 class AppointmentsController extends Controller
@@ -12,7 +13,8 @@ class AppointmentsController extends Controller
      */
     public function index()
     {
-        //
+        $services = Appointment::all();
+        return AppointmentsReurce::collection($services);
     }
 
     /**

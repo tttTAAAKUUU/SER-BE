@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('provider_service_id')->constrained()->cascadeOnDelete();
+
+            $table->enum('time_category', ['morning', 'afternoon', 'evening']);
+            $table->dateTime('time');
+
             $table->enum('status', [
                 'confirmed',
                 'in-transit',

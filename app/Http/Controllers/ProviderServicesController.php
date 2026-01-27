@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ServiceProvider\StoreProviderServiceRequest;
 use App\Http\Requests\ServiceProvider\UpdateProviderServiceRequest;
 use App\Http\Resources\ServiceProvider\ProviderServicesResource;
-use App\Models\ProviderService;
+use App\Models\ServiceProvider\ProviderService;
 use Illuminate\Support\Facades\Auth;
 
 class ProviderServicesController extends Controller

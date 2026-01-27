@@ -5,8 +5,8 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreServicesRequest;
 use App\Http\Resources\User\UserServiceRequestResource;
-use App\Models\Location;
-use App\Models\ServiceRequest;
+use App\Models\Location\Location;
+use App\Models\User\ServiceRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 

@@ -12,8 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('employees', function (Blueprint $table) {
+
             $table->id();
-            $table->foreignId('business_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('store_id')->constrained()->cascadeOnDelete();
+
+            $table->string('first_name');
+            $table->string('last_name');
+            $table->string('phone');
+            $table->date('dob');
+            $table->enum('gender', ['male', 'female', 'other']);
+            $table->text('bio')->nullable();
 
             $table->timestamps();
         });

@@ -1,8 +1,12 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\User;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Models\Administrator\AdministratorProfile;
+use App\Models\Business\Business;
+use App\Models\ServiceProvider\ServiceProviderProfile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -55,5 +59,15 @@ class User extends Authenticatable
     public function serviceProviderProfile()
     {
         return $this->hasOne(ServiceProviderProfile::class);
+    }
+
+    public function administratorProfile()
+    {
+        return $this->hasOne(AdministratorProfile::class);
+    }
+
+    public function business()
+    {
+        return $this->hasOne(Business::class);
     }
 }

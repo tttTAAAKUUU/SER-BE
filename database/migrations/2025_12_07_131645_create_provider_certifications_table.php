@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('provider_certifications', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('provider_id')
+            $table->foreignId('service_provider_profile_id')
                 ->constrained()
                 ->cascadeOnDelete();
 

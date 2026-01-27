@@ -1,10 +1,16 @@
 <?php
 
+use App\Http\Controllers\Auth\AdministratorsController;
 use App\Http\Controllers\Auth\ServiceProvidersController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\UsersController;
 use App\Http\Controllers\ProviderServicesController;
-use App\Http\Controllers\ServicesController;
+use App\Http\Controllers\Services\ServicesController;
+use App\Http\Controllers\Admin\Services\ServicesController as AdminServicesController;
+use App\Http\Controllers\Admin\ServiceCategories\ServiceCategoriesController;
+use App\Http\Controllers\Auth\BusinessesController;
+use App\Http\Controllers\Businesses\BusinessStoresController;
+use App\Http\Controllers\Businesses\StoreEmployeesController;
 use App\Http\Controllers\ServiceProvider\ProviderServiceRequestsController;
 use App\Http\Controllers\User\UserServiceRequestsController;
 
@@ -59,6 +65,65 @@ Route::group(['prefix' => 'service-providers'], function () {
             Route::get('/', [ProviderServiceRequestsController::class, 'index']);
             Route::get('/{id}', [ProviderServiceRequestsController::class, 'show']);
             Route::put('/{id}', [ProviderServiceRequestsController::class, 'update']);
+        });
+
+        Route::post('/logout', [ServiceProvidersController::class, 'logout']);
+    });
+});
+
+Route::group(['prefix' => 'administrators'], function () {
+    Route::post('/register', [AdministratorsController::class, 'register']);
+    Route::post('/login', [AdministratorsController::class, 'login']);
+
+    // Protected routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/profile', [AdministratorsController::class, 'profile']);
+        Route::get('/dashboard', [AdministratorsController::class, 'dashboard']);
+
+        Route::group(['prefix' => 'service-categories'], function () {
+            Route::get('/', [ServiceCategoriesController::class, 'index']);
+            Route::get('/{id}', [ServiceCategoriesController::class, 'show']);
+            Route::post('/', [ServiceCategoriesController::class, 'store']);
+            Route::put('/{id}', [ServiceCategoriesController::class, 'update']);
+            Route::delete('/{id}', [ServiceCategoriesController::class, 'destroy']);
+        });
+
+        Route::group(['prefix' => 'services'], function () {
+            Route::get('/', [AdminServicesController::class, 'index']);
+            Route::get('/{id}', [AdminServicesController::class, 'show']);
+            Route::post('/', [AdminServicesController::class, 'store']);
+            Route::put('/{id}', [AdminServicesController::class, 'update']);
+            Route::delete('/{id}', [AdminServicesController::class, 'destroy']);
+        });
+
+        Route::post('/logout', [ServiceProvidersController::class, 'logout']);
+    });
+});
+
+Route::group(['prefix' => 'businesses'], function () {
+    Route::post('/register', [BusinessesController::class, 'register']);
+    Route::post('/login', [BusinessesController::class, 'login']);
+
+    // Protected routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/profile', [BusinessesController::class, 'profile']);
+        Route::get('/dashboard', [BusinessesController::class, 'dashboard']);
+
+        Route::group(['prefix' => 'stores'], function () {
+
+            Route::group(['prefix' => 'employees'], function () {
+                Route::get('/', [StoreEmployeesController::class, 'index']);
+                // Route::get('/{id}', [StoreEmployeesController::class, 'show']);
+                // Route::post('/', [StoreEmployeesController::class, 'store']);
+                // Route::put('/{id}', [StoreEmployeesController::class, 'update']);
+                // Route::delete('/{id}', [StoreEmployeesController::class, 'destroy']);
+            });
+
+            Route::get('/', [BusinessStoresController::class, 'index']);
+            Route::get('/{id}', [BusinessStoresController::class, 'show']);
+            Route::post('/', [BusinessStoresController::class, 'store']);
+            Route::put('/{id}', [BusinessStoresController::class, 'update']);
+            Route::delete('/{id}', [BusinessStoresController::class, 'destroy']);
         });
 
         Route::post('/logout', [ServiceProvidersController::class, 'logout']);

@@ -1,7 +1,10 @@
 <?php
 
-namespace App\Models\Service;
+namespace App\Models\User;
 
+use App\Models\Location\Location;
+use App\Models\ServiceProvider\ProviderService;
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 

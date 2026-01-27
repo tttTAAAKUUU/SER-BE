@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\User\StoreUserProfileRequest;
 use App\Http\Resources\Auth\UserProfileResource;
-use App\Models\Address;
-use App\Models\User;
-use App\Models\UserProfile;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-
+use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User\UserProfile;
+use Illuminate\Http\Request;
+use App\Models\User\User;
 class UsersController extends Controller
 {
     public function register(StoreUserProfileRequest $request)

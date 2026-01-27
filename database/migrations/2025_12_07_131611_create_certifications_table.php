@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('certifications', function (Blueprint $table) {
             $table->id();
+
             $table->string('name');
             $table->string('issuer')->nullable();
-            $table->date('issued_at')->nullable();
-            $table->date('expires_at')->nullable();
+
             $table->timestamps();
         });
     }
