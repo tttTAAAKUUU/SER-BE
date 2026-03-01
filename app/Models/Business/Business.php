@@ -5,6 +5,7 @@ namespace App\Models\Business;
 use App\Models\Location\Location;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Business extends Model
@@ -20,8 +21,13 @@ class Business extends Model
         'closing_time',
     ];
 
-    public function location(): BelongsTo {
-
+    public function location(): BelongsTo
+    {
         return $this->belongsTo(Location::class);
+    }
+
+    public function stores(): HasMany
+    {
+        return $this->hasMany(Store::class, 'buisiness_id', 'id');
     }
 }

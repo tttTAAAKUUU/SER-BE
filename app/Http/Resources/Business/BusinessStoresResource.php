@@ -15,6 +15,7 @@ class BusinessStoresResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'store_id' => $this->id,
             'name' =>  $this->name,
             'description' =>  $this->description,
             'phone' =>  $this->phone,

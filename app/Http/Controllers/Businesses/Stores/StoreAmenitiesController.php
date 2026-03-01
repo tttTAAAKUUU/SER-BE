@@ -1,22 +1,25 @@
 <?php
 
-namespace App\Http\Controllers\Businesses;
+namespace App\Http\Controllers\Businesses\Stores;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Business\Employee\AddStoreEmployeeRequest;
+use App\Http\Requests\Business\Employee\UpdateStoreEmployeeRequest;
+use App\Http\Resources\Business\StoreEmployeesResource;
 use App\Models\Business\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class StoreEmployeesController extends Controller
+class StoreAmenitiesController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $employees = Employee::join('stores', 'stores.id', 'employee.store_id')
-        ->join('businesses', 'businesses.id', 'stores.business_id')
-        ->where('business.user_id', '=', Auth::user()->id)->get();
+        $employees = Amenities::join('stores', 'stores.id', 'employees.store_id')
+            ->join('businesses', 'businesses.id', 'stores.business_id')
+            ->where('businesses.user_id', '=', Auth::user()->id)->get();
 
         return StoreEmployeesResource::collection($employees);
     }
@@ -32,9 +35,11 @@ class StoreEmployeesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(AddStoreEmployeeRequest $request)
     {
-        //
+        $employee = Employee::create($request->validated());
+
+        return new StoreEmployeesResource($employee);
     }
 
     /**
@@ -56,9 +61,14 @@ class StoreEmployeesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateStoreEmployeeRequest $request, string $id)
     {
-        //
+
+        $employee = Employee::findOrFail($id);
+
+        $employee->update($request->validated());
+
+        return new StoreEmployeesResource($employee);
     }
 
     /**

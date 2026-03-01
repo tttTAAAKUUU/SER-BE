@@ -9,9 +9,13 @@ use App\Http\Controllers\Services\ServicesController;
 use App\Http\Controllers\Admin\Services\ServicesController as AdminServicesController;
 use App\Http\Controllers\Admin\ServiceCategories\ServiceCategoriesController;
 use App\Http\Controllers\Auth\BusinessesController;
-use App\Http\Controllers\Businesses\BusinessStoresController;
-use App\Http\Controllers\Businesses\StoreEmployeesController;
+use App\Http\Controllers\Businesses\BusinessEmployeesController;
+use App\Http\Controllers\Businesses\Stores\BookingController;
+use App\Http\Controllers\Businesses\Stores\BusinessStoresController;
+use App\Http\Controllers\Businesses\Stores\StoreEmployeesController;
+use App\Http\Controllers\Businesses\Stores\StoreServicesController;
 use App\Http\Controllers\ServiceProvider\ProviderServiceRequestsController;
+use App\Http\Controllers\User\Bookings\UserBookingsController;
 use App\Http\Controllers\User\UserServiceRequestsController;
 
 // Public routes
@@ -41,6 +45,14 @@ Route::group(['prefix' => 'users'], function () {
             Route::get('/{id}', [UserServiceRequestsController::class, 'show']);
             Route::put('/{id}', [UserServiceRequestsController::class, 'update']);
             Route::delete('/{id}', [UserServiceRequestsController::class, 'destroy']);
+        });
+
+        Route::group(['prefix' => 'bookings'], function () {
+            Route::get('/', [UserBookingsController::class, 'index']);
+            Route::post('/', [UserBookingsController::class, 'store']);
+            Route::get('/{id}', [UserBookingsController::class, 'show']);
+            Route::put('/{id}', [UserBookingsController::class, 'update']);
+            Route::delete('/{id}', [UserBookingsController::class, 'destroy']);
         });
     });
 });
@@ -111,12 +123,30 @@ Route::group(['prefix' => 'businesses'], function () {
 
         Route::group(['prefix' => 'stores'], function () {
 
-            Route::group(['prefix' => 'employees'], function () {
+            Route::group(['prefix' => '{store}/employees'], function () {
                 Route::get('/', [StoreEmployeesController::class, 'index']);
-                // Route::get('/{id}', [StoreEmployeesController::class, 'show']);
-                // Route::post('/', [StoreEmployeesController::class, 'store']);
-                // Route::put('/{id}', [StoreEmployeesController::class, 'update']);
-                // Route::delete('/{id}', [StoreEmployeesController::class, 'destroy']);
+                Route::get('/{id}', [StoreEmployeesController::class, 'show']);
+                Route::post('/', [StoreEmployeesController::class, 'store']);
+                Route::put('/{id}', [StoreEmployeesController::class, 'update']);
+                Route::delete('/{id}', [StoreEmployeesController::class, 'destroy']);
+            });
+
+            Route::group(['prefix' => '{store}/bookings'], function () {
+                Route::get('/', [BookingController::class, 'index']);
+                Route::get('/{id}', [BookingController::class, 'show']);
+                Route::post('/', [BookingController::class, 'store']);
+                Route::put('/{id}', [BookingController::class, 'update']);
+                Route::delete('/{id}', [BookingController::class, 'destroy']);
+            });
+
+            Route::group(['prefix' => '{store}/services'], function () {
+
+                Route::get('/', [StoreServicesController::class, 'index']);
+                Route::get('/{id}', [StoreServicesController::class, 'show']);
+                Route::post('/', [StoreServicesController::class, 'store']);
+                Route::put('/{id}', [StoreServicesController::class, 'update']);
+                Route::delete('/{id}', [StoreServicesController::class, 'destroy']);
+
             });
 
             Route::get('/', [BusinessStoresController::class, 'index']);
@@ -124,6 +154,10 @@ Route::group(['prefix' => 'businesses'], function () {
             Route::post('/', [BusinessStoresController::class, 'store']);
             Route::put('/{id}', [BusinessStoresController::class, 'update']);
             Route::delete('/{id}', [BusinessStoresController::class, 'destroy']);
+        });
+
+        Route::group(['prefix' => 'employees'], function () {
+            Route::get('/', [BusinessEmployeesController::class, 'index']);
         });
 
         Route::post('/logout', [ServiceProvidersController::class, 'logout']);

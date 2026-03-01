@@ -15,8 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('service_category_id')->constrained()->cascadeOnDelete();
             $table->string('name');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->decimal('price', 10, 2);
+            $table->integer('duration_minutes');
+            $table->boolean('is_active')->default(true);
+
             $table->timestamps();
         });
     }

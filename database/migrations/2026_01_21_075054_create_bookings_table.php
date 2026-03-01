@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('store_service_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
             $table->enum('time_category', ['morning', 'afternoon', 'evening']);
             $table->dateTime('time');
             $table->enum('service_location', ['shop', 'office', 'home']);

@@ -6,6 +6,7 @@ namespace App\Models\User;
 
 use App\Models\Administrator\AdministratorProfile;
 use App\Models\Business\Business;
+use App\Models\Business\StoreManagerProfile;
 use App\Models\ServiceProvider\ServiceProviderProfile;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -64,6 +65,11 @@ class User extends Authenticatable
     public function administratorProfile()
     {
         return $this->hasOne(AdministratorProfile::class);
+    }
+
+    public function storeManagerProfile()
+    {
+        return $this->hasOne(StoreManagerProfile::class);
     }
 
     public function business()

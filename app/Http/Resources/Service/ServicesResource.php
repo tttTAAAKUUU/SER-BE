@@ -21,7 +21,8 @@ class ServicesResource extends JsonResource
             'category' => [
                 'name' => $this->serviceCategory->name,
                 'description' => $this->serviceCategory->description,
-            ]
+            ],
+            'addons' => $this->addons
         ];
     }
 }

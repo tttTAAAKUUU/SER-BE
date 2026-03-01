@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Businesses;
+namespace App\Http\Controllers\Businesses\Stores;
 
 use App\Http\Controllers\Controller;
 use App\Models\Business\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\Business\BusinessStoresResource;
-use App\Http\Requests\Business\AddBusinessStoreRequest;
+use App\Http\Requests\Business\Store\AddBusinessStoreRequest;
 use App\Models\Location\Location;
 
 class BusinessStoresController extends Controller

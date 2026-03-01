@@ -14,7 +14,7 @@ class ServicesController extends Controller
 {
     public function index()
     {
-        $services = Service::all();
+        $services = Service::with('addons', 'serviceCategory')->get();
         return ServicesResource::collection($services);
     }
 

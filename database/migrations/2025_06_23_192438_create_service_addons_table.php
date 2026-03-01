@@ -11,17 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('businesses', function (Blueprint $table) {
+        Schema::create('service_addons', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('location_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('service_id')->constrained()->cascadeOnDelete();
 
             $table->string('name');
             $table->text('description')->nullable();
-            $table->string('email', 50);
-            $table->string('phone', 50);
-            $table->time('opening_time');
-            $table->time('closing_time');
+            $table->decimal('price', 10, 2);
+            $table->integer('duration_minutes');
 
             $table->timestamps();
         });
@@ -32,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('businesses');
+        Schema::dropIfExists('service_addons');
     }
 };
