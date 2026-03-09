@@ -11,10 +11,12 @@ use App\Http\Controllers\Admin\ServiceCategories\ServiceCategoriesController;
 use App\Http\Controllers\Auth\BusinessesController;
 use App\Http\Controllers\Businesses\BusinessEmployeesController;
 use App\Http\Controllers\Businesses\Stores\BookingController;
+use App\Http\Controllers\Businesses\Stores\BusinessServicesController;
 use App\Http\Controllers\Businesses\Stores\BusinessStoresController;
 use App\Http\Controllers\Businesses\Stores\StoreEmployeesController;
 use App\Http\Controllers\Businesses\Stores\StoreServicesController;
 use App\Http\Controllers\ServiceProvider\ProviderServiceRequestsController;
+use App\Http\Controllers\ServiceProvider\ServiceProviderServicesController;
 use App\Http\Controllers\User\Bookings\UserBookingsController;
 use App\Http\Controllers\User\UserServiceRequestsController;
 
@@ -35,9 +37,18 @@ Route::group(['prefix' => 'users'], function () {
         Route::get('/profile', [UsersController::class, 'profile']);
         Route::post('/logout', [UsersController::class, 'logout']);
 
-        Route::group(['prefix' => 'services'], function () {
-            Route::get('/', [ServicesController::class, 'getProviderServices']);
+        Route::group(['prefix' => 'provider'], function () {
+            Route::group(['prefix' => 'services'], function () {
+                Route::get('/', [ServiceProviderServicesController::class, 'getServices']);
+            });
         });
+
+        Route::group(['prefix' => 'business'], function () {
+            Route::group(['prefix' => 'services'], function () {
+                Route::get('/', [BusinessServicesController::class, 'getServices']);
+            });
+        });
+
 
         Route::group(['prefix' => 'service-requests'], function () {
             Route::get('/', [UserServiceRequestsController::class, 'index']);
@@ -113,6 +124,8 @@ Route::group(['prefix' => 'administrators'], function () {
 });
 
 Route::group(['prefix' => 'businesses'], function () {
+
+    Route::post('/', [BusinessesController::class, 'index']);
     Route::post('/register', [BusinessesController::class, 'register']);
     Route::post('/login', [BusinessesController::class, 'login']);
 
@@ -146,7 +159,6 @@ Route::group(['prefix' => 'businesses'], function () {
                 Route::post('/', [StoreServicesController::class, 'store']);
                 Route::put('/{id}', [StoreServicesController::class, 'update']);
                 Route::delete('/{id}', [StoreServicesController::class, 'destroy']);
-
             });
 
             Route::get('/', [BusinessStoresController::class, 'index']);
