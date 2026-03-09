@@ -42,10 +42,4 @@ class ServicesController extends Controller
         Service::find($id)->delete();
         return response()->json(['message' => 'Service deleted successfully']);
     }
-
-    public function getProviderServices()
-    {
-        $services = ProviderService::with('service', 'serviceProviderProfile')->get();
-        return ProviderServicesResource::collection($services);
-    }
 }
