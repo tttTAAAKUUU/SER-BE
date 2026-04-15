@@ -22,7 +22,9 @@ class UpdateBookingRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'time_category' => 'nullable|in:morning,afternoon,evening',
+            'time' => 'nullable|date',
+            'service_location' => 'nullable|in:shop,office,home',
         ];
     }
 }

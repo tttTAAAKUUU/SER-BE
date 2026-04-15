@@ -34,7 +34,7 @@ class ServicesController extends Controller
     {
         $service = Service::findOrFail($id);
         $service->update($request->validated());
-        return new ServicesResource($service);
+        return response()->json(['message' => 'Service updated successfully']);
     }
 
     public function destroy($id)

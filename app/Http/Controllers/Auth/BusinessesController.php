@@ -20,6 +20,11 @@ class BusinessesController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function index()
+    {
+        return response()->json(['message' => 'To be implemented']);
+    }
+
     public function register(RegisterBusinessRequest $request)
     {
         $userData = $request->validated('user');

@@ -43,7 +43,7 @@ class ProviderServicesController extends Controller
     {
         $service = ProviderService::findOrFail($id);
         $service->update($request->all());
-        return new ProviderServicesResource($service);
+        return response()->json(['message' => 'Service updated successfully']);
     }
 
     public function destroy($id)

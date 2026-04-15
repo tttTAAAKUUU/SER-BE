@@ -38,32 +38,32 @@ class UserBookingsController extends Controller
             }
         }
 
-        return new BookingResource($booking->load('addons'));
+        return response()->json(['message' => 'Booking created successfully'], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(ServiceRequest $serviceRequest)
+    public function show(Booking $booking)
     {
-        return new UserServiceRequestResource($serviceRequest);
+        return new BookingResource($booking);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, ServiceRequest $serviceRequest)
+    public function update(Request $request, Booking $booking)
     {
-        $serviceRequest->update($request->all());
-        return response()->json(['serviceRequest' => $serviceRequest]);
+        $booking->update($request->all());
+        return response()->json(['message' => 'Booking updated successfully']);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(ServiceRequest $serviceRequest)
+    public function destroy(Booking $booking)
     {
-        $serviceRequest->delete();
-        return response()->json(['message' => 'Service request deleted successfully']);
+        $booking->delete();
+        return response()->json(['message' => 'Booking deleted successfully']);
     }
 }

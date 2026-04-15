@@ -25,7 +25,7 @@ Route::group(['prefix' => 'services'], function () {
     Route::get('/', [ServicesController::class, 'index']);
     Route::get('/{id}', [ServicesController::class, 'show']);
     Route::put('/{id}', [ServicesController::class, 'update']);
-    Route::delete('/{id}', [ServicesController::class, 'destroy']);
+    Route::delete('/{id}', [ServicesController::class, 'destroy'])->middleware('auth:sanctum');
 });
 
 Route::group(['prefix' => 'users'], function () {
@@ -53,17 +53,17 @@ Route::group(['prefix' => 'users'], function () {
         Route::group(['prefix' => 'service-requests'], function () {
             Route::get('/', [UserServiceRequestsController::class, 'index']);
             Route::post('/', [UserServiceRequestsController::class, 'store']);
-            Route::get('/{id}', [UserServiceRequestsController::class, 'show']);
-            Route::put('/{id}', [UserServiceRequestsController::class, 'update']);
-            Route::delete('/{id}', [UserServiceRequestsController::class, 'destroy']);
+            Route::get('/{serviceRequest}', [UserServiceRequestsController::class, 'show']);
+            Route::put('/{serviceRequest}', [UserServiceRequestsController::class, 'update']);
+            Route::delete('/{serviceRequest}', [UserServiceRequestsController::class, 'destroy']);
         });
 
         Route::group(['prefix' => 'bookings'], function () {
             Route::get('/', [UserBookingsController::class, 'index']);
             Route::post('/', [UserBookingsController::class, 'store']);
-            Route::get('/{id}', [UserBookingsController::class, 'show']);
-            Route::put('/{id}', [UserBookingsController::class, 'update']);
-            Route::delete('/{id}', [UserBookingsController::class, 'destroy']);
+            Route::get('/{booking}', [UserBookingsController::class, 'show']);
+            Route::put('/{booking}', [UserBookingsController::class, 'update']);
+            Route::delete('/{booking}', [UserBookingsController::class, 'destroy']);
         });
     });
 });
@@ -86,8 +86,8 @@ Route::group(['prefix' => 'service-providers'], function () {
 
         Route::group(['prefix' => 'service-requests'], function () {
             Route::get('/', [ProviderServiceRequestsController::class, 'index']);
-            Route::get('/{id}', [ProviderServiceRequestsController::class, 'show']);
-            Route::put('/{id}', [ProviderServiceRequestsController::class, 'update']);
+            Route::get('/{serviceRequest}', [ProviderServiceRequestsController::class, 'show']);
+            Route::put('/{serviceRequest}', [ProviderServiceRequestsController::class, 'update']);
         });
 
         Route::post('/logout', [ServiceProvidersController::class, 'logout']);
@@ -146,10 +146,10 @@ Route::group(['prefix' => 'businesses'], function () {
 
             Route::group(['prefix' => '{store}/bookings'], function () {
                 Route::get('/', [BookingController::class, 'index']);
-                Route::get('/{id}', [BookingController::class, 'show']);
+                Route::get('/{booking}', [BookingController::class, 'show']);
                 Route::post('/', [BookingController::class, 'store']);
-                Route::put('/{id}', [BookingController::class, 'update']);
-                Route::delete('/{id}', [BookingController::class, 'destroy']);
+                Route::put('/{booking}', [BookingController::class, 'update']);
+                Route::delete('/{booking}', [BookingController::class, 'destroy']);
             });
 
             Route::group(['prefix' => '{store}/services'], function () {

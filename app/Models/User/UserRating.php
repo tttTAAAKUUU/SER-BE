@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserRating extends Model
 {
-    /** @use HasFactory<\Database\Factories\UserRatingFactory> */
+    /** @use HasFactory<\Database\Factories\User\UserRatingFactory> */
     use HasFactory;
 }

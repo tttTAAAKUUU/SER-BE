@@ -52,6 +52,7 @@ class UserServiceRequestsController extends Controller
      */
     public function show(ServiceRequest $serviceRequest)
     {
+        $serviceRequest->load('providerService.service', 'providerService.serviceProviderProfile', 'location');
         return new UserServiceRequestResource($serviceRequest);
     }
 
@@ -60,6 +61,9 @@ class UserServiceRequestsController extends Controller
      */
     public function update(Request $request, ServiceRequest $serviceRequest)
     {
+        if ($serviceRequest->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
         $serviceRequest->update($request->all());
         return response()->json(['serviceRequest' => $serviceRequest]);
     }
@@ -69,6 +73,9 @@ class UserServiceRequestsController extends Controller
      */
     public function destroy(ServiceRequest $serviceRequest)
     {
+        if ($serviceRequest->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
         $serviceRequest->delete();
         return response()->json(['message' => 'Service request deleted successfully']);
     }

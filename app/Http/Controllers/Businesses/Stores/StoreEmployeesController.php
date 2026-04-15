@@ -78,6 +78,8 @@ class StoreEmployeesController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $employee = Employee::findOrFail($id);
+        $employee->delete();
+        return response()->json(['message' => 'Employee deleted successfully']);
     }
 }

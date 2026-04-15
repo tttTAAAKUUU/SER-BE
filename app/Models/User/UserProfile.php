@@ -8,7 +8,7 @@ use Symfony\Component\Mime\Address;
 
 class UserProfile extends Model
 {
-    /** @use HasFactory<\Database\Factories\UserProfileFactory> */
+    /** @use HasFactory<\Database\Factories\User\UserProfileFactory> */
     use HasFactory;
 
     protected $fillable = [

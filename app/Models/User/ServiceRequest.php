@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ServiceRequest extends Model
 {
-    /** @use HasFactory<\Database\Factories\ServiceRequestFactory> */
+    /** @use HasFactory<\Database\Factories\User\ServiceRequestFactory> */
     use HasFactory;
 
     protected $fillable = [

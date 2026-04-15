@@ -3,11 +3,15 @@
 namespace App\Models\Business\Store;
 
 use App\Models\Business\Store;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Employee extends Model
 {
+    /** @use HasFactory<\Database\Factories\Business\Store\EmployeeFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'store_id',
         'first_name',

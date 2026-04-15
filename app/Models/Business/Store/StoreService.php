@@ -4,12 +4,16 @@ namespace App\Models\Business\Store;
 
 use App\Models\Business\Store;
 use App\Models\Service\Service;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class StoreService extends Model
 {
+    /** @use HasFactory<\Database\Factories\Business\Store\StoreServiceFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'store_id',
         'service_id',

@@ -78,6 +78,8 @@ class BusinessStoresController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $store = Store::findOrFail($id);
+        $store->delete();
+        return response()->json(['message' => 'Store deleted successfully']);
     }
 }

@@ -51,21 +51,21 @@ class BookingController extends Controller
             }
         }
 
-        return new BookingResource($booking->load('addons'));
+        return response()->json(['message' => 'Booking created successfully'], 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Booking $booking)
+    public function show(string $storeId, Booking $booking)
     {
-        //
+        return new BookingResource($booking->load(['user.userProfile', 'storeService', 'addons', 'employee']));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Booking $booking)
+    public function edit(string $storeId, Booking $booking)
     {
         //
     }
@@ -73,16 +73,19 @@ class BookingController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateBookingRequest $request, Booking $booking)
+    public function update(UpdateBookingRequest $request, string $storeId, Booking $booking)
     {
-        //
+        $booking->update($request->validated());
+        $booking->load(['user.userProfile', 'storeService', 'addons', 'employee']);
+        return new BookingResource($booking);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Booking $booking)
+    public function destroy(string $storeId, Booking $booking)
     {
-        //
+        $booking->delete();
+        return response()->json(['message' => 'Booking deleted successfully']);
     }
 }

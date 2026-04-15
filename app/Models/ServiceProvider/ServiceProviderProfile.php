@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ServiceProviderProfile extends Model
 {
-    /** @use HasFactory<\Database\Factories\ServiceProviderProfileFactory> */
+    /** @use HasFactory<\Database\Factories\ServiceProvider\ServiceProviderProfileFactory> */
     use HasFactory;
 
     protected $fillable = [

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProviderService extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProviderServiceFactory> */
+    /** @use HasFactory<\Database\Factories\ServiceProvider\ProviderServiceFactory> */
     use HasFactory;
 
     protected $table = 'provider_services';

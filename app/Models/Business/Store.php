@@ -4,12 +4,16 @@ namespace App\Models\Business;
 
 use App\Models\Location\Location;
 use App\Models\Store\Booking;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Store extends Model
 {
+    /** @use HasFactory<\Database\Factories\Business\StoreFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'location_id',
         'business_id',

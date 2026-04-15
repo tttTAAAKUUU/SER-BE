@@ -14,29 +14,44 @@ class UserServiceRequestResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $providerService = $this->providerService;
+        $location = $this->location;
+        $serviceData = null;
+        $serviceProviderData = null;
+
+        if ($providerService && $providerService->relationLoaded('service')) {
+            $service = $providerService->service;
+            $serviceData = [
+                'name' => $service->name ?? null,
+                'description' => $service->description ?? null,
+                'price' => $providerService->price ?? null,
+            ];
+        }
+
+        if ($providerService && $providerService->relationLoaded('serviceProviderProfile')) {
+            $spProfile = $providerService->serviceProviderProfile;
+            $serviceProviderData = [
+                'first_name' => $spProfile->first_name ?? null,
+                'last_name' => $spProfile->last_name ?? null,
+                'phone' => $spProfile->phone ?? null,
+            ];
+        }
+
         return [
             'id' => $this->id,
             'starts_at' => $this->starts_at,
-            'notes' => $this->providerService->description,
+            'notes' => $this->notes,
             'status' => $this->status,
-            'serviceProvider' => [
-                'first_name' => $this->providerService->serviceProviderProfile->first_name,
-                'last_name' => $this->providerService->serviceProviderProfile->last_name,
-                'phone' => $this->providerService->serviceProviderProfile->phone,
-            ],
-            'location' => [
-                    'street_address' => $this->location->street_address,
-                    'suburb' => $this->location->suburb,
-                    'city' => $this->location->city,
-                    'lat' => $this->location->lat,
-                    'lng' => $this->location->lng,
-                    'postal_code' => $this->location->postal_code,
-                ],
-            'service' => [
-                'name' => $this->providerService->service->name,
-                'description' => $this->providerService->service->description,
-                'price' => $this->providerService->price,
-            ],
+            'serviceProvider' => $serviceProviderData,
+            'location' => $location ? [
+                'street_address' => $location->street_address ?? null,
+                'suburb' => $location->suburb ?? null,
+                'city' => $location->city ?? null,
+                'lat' => $location->lat ?? null,
+                'lng' => $location->lng ?? null,
+                'postal_code' => $location->postal_code ?? null,
+            ] : null,
+            'service' => $serviceData,
         ];
     }
 }

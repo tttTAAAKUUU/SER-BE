@@ -15,16 +15,14 @@ class BookingResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'client' => $this->user->userProfile,
+            'client' => $this->user?->userProfile,
             'service' => $this->storeService,
             'addons' => $this->whenLoaded('addons', function () {
                 return $this->addons->map(function ($addon) {
-                    // dd($addon->storeServiceAddon->serviceAddon);
                     return [
-
-                        'name' => $addon->storeServiceAddon->serviceAddon->name,
-                        'price' => $addon->storeServiceAddon->serviceAddon->price,
-                        'duration' => $addon->storeServiceAddon->serviceAddon->duration_minutes,
+                        'name' => $addon->storeServiceAddon?->serviceAddon?->name,
+                        'price' => $addon->storeServiceAddon?->serviceAddon?->price,
+                        'duration' => $addon->storeServiceAddon?->serviceAddon?->duration_minutes,
                     ];
                 });
             }),

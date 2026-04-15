@@ -22,7 +22,10 @@ class UpdateStoreServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'store_id' => 'nullable|numeric|exists:stores,id',
+            'service_id' => 'nullable|numeric|exists:services,id',
+            'description' => 'nullable|string',
+            'price' => 'nullable|numeric|min:0',
         ];
     }
 }

@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Service extends Model
 {
-    /** @use HasFactory<\Database\Factories\ServicesFactory> */
+    /** @use HasFactory<\Database\Factories\Service\ServiceFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -17,6 +17,8 @@ class Service extends Model
         'name',
         'description',
         'price',
+        'duration_minutes',
+        'is_active',
     ];
 
     public function serviceCategory(): BelongsTo

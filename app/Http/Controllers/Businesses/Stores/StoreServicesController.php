@@ -83,6 +83,8 @@ class StoreServicesController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $storeService = StoreService::findOrFail($id);
+        $storeService->delete();
+        return response()->json(['message' => 'Store service deleted successfully']);
     }
 }

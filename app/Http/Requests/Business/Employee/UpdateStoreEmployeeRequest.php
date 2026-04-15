@@ -22,11 +22,11 @@ class UpdateStoreEmployeeRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255',
-            'phone'      => 'required|string|max:20',
-            'dob'        => 'required|date|before:today',
-            'gender'     => 'required|in:male,female,other',
+            'first_name' => 'nullable|string|max:255',
+            'last_name'  => 'nullable|string|max:255',
+            'phone'      => 'nullable|string|max:20',
+            'dob'        => 'nullable|date|before:today',
+            'gender'     => 'nullable|in:male,female,other',
             'bio'        => 'nullable|string|max:1000',
         ];
     }
