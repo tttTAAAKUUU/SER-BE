@@ -11,7 +11,7 @@ class UpdateStoreManagerProfileRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,7 @@ class UpdateStoreManagerProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'store_id' => 'required|exists:stores,id',
         ];
     }
 }

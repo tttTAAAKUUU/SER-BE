@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Requests\User\StoreUserProfileRequest;
+use App\Http\Requests\User\UpdateUserProfileRequest;
 use App\Http\Resources\Auth\UserProfileResource;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Auth\LoginRequest;
@@ -62,5 +63,13 @@ class UsersController extends Controller
         $request->user()->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Logged out successfully']);
+    }
+
+    public function update(UpdateUserProfileRequest $request)
+    {
+        $userProfile = $request->user()->userProfile;
+
+        $userProfile->update($request->all());
+        return response()->json(['message' => 'User profile updated successfully']);
     }
 }

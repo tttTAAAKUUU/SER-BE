@@ -21,9 +21,16 @@ class UpdateAdministratorProfileRequest extends FormRequest
      */
     public function rules(): array
     {
+        if ($this->isMethod('put')) {
+            return [
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+            ];
+        }
+
         return [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'first_name' => 'string|max:255',
+            'last_name' => 'string|max:255',
         ];
     }
 }

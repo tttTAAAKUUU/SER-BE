@@ -11,7 +11,7 @@ class UpdateBusinessRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,13 +21,24 @@ class UpdateBusinessRequest extends FormRequest
      */
     public function rules(): array
     {
+        if ($this->isMethod('put')) {
+            return [
+                'name' => 'required|string|max:255',
+                'description' => 'required|string',
+                'email' => 'required|email',
+                'phone' => 'required|string',
+                'opening_time' => 'required|date_format:H:i',
+                'closing_time' => 'required|date_format:H:i',
+            ];
+        }
+
         return [
-            'name' => 'required|string|max:255|unique:businesses,name' . $this->route('business')->name,
-            'description' => 'required|string',
-            'email' => 'required|email',
-            'phone' => 'required|string',
-            'opening_time' => 'required|date_format:H:i',
-            'closing_time' => 'required|date_format:H:i',
+            'name' => 'string|max:255',
+            'description' => 'string',
+            'email' => 'email',
+            'phone' => 'string',
+            'opening_time' => 'date_format:H:i',
+            'closing_time' => 'date_format:H:i',
         ];
     }
 }

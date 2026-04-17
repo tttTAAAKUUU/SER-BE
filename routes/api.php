@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AdministratorsController;
 use App\Http\Controllers\Auth\ServiceProvidersController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\UsersController;
+use App\Http\Controllers\StoreManagerProfileController;
 use App\Http\Controllers\ProviderServicesController;
 use App\Http\Controllers\Services\ServicesController;
 use App\Http\Controllers\Admin\Services\ServicesController as AdminServicesController;
@@ -35,6 +36,8 @@ Route::group(['prefix' => 'users'], function () {
     // Protected routes
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/profile', [UsersController::class, 'profile']);
+        Route::put('/profile', [UsersController::class, 'update']);
+        Route::patch('/profile', [UsersController::class, 'update']);
         Route::post('/logout', [UsersController::class, 'logout']);
 
         Route::group(['prefix' => 'provider'], function () {
@@ -75,6 +78,8 @@ Route::group(['prefix' => 'service-providers'], function () {
     // Protected routes
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/profile', [ServiceProvidersController::class, 'profile']);
+        Route::put('/profile', [ServiceProvidersController::class, 'update']);
+        Route::patch('/profile', [ServiceProvidersController::class, 'update']);
 
         Route::group(['prefix' => 'services'], function () {
             Route::get('/', [ProviderServicesController::class, 'index']);
@@ -101,6 +106,8 @@ Route::group(['prefix' => 'administrators'], function () {
     // Protected routes
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/profile', [AdministratorsController::class, 'profile']);
+        Route::put('/profile', [AdministratorsController::class, 'update']);
+        Route::patch('/profile', [AdministratorsController::class, 'update']);
         Route::get('/dashboard', [AdministratorsController::class, 'dashboard']);
 
         Route::group(['prefix' => 'service-categories'], function () {
@@ -132,6 +139,8 @@ Route::group(['prefix' => 'businesses'], function () {
     // Protected routes
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/profile', [BusinessesController::class, 'profile']);
+        Route::put('/profile', [BusinessesController::class, 'update']);
+        Route::patch('/profile', [BusinessesController::class, 'update']);
         Route::get('/dashboard', [BusinessesController::class, 'dashboard']);
 
         Route::group(['prefix' => 'stores'], function () {
@@ -173,5 +182,13 @@ Route::group(['prefix' => 'businesses'], function () {
         });
 
         Route::post('/logout', [ServiceProvidersController::class, 'logout']);
+    });
+});
+
+Route::group(['prefix' => 'store-managers'], function () {
+    // Protected routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::put('/profile', [StoreManagerProfileController::class, 'update']);
+        Route::patch('/profile', [StoreManagerProfileController::class, 'update']);
     });
 });

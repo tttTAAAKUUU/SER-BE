@@ -56,14 +56,14 @@ class AdministratorsController extends Controller
 
     public function update(UpdateAdministratorProfileRequest $request)
     {
-        $serviceProvider = $request->user()->serviceProviderProfile;
+        $administrator = $request->user()->administratorProfile;
 
         if ($request->hasFile('profile_image')) {
-            $serviceProvider->profile_image = $request->file('profile_image')->store('public/profile_images');
+            $administrator->profile_image = $request->file('profile_image')->store('public/profile_images');
         }
 
-        $serviceProvider->update($request->all());
-        return response()->json(['message' => 'Service provider updated successfully']);
+        $administrator->update($request->all());
+        return response()->json(['message' => 'Administrator updated successfully']);
     }
 
     public function login(LoginRequest $request)

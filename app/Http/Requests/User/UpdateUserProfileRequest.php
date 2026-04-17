@@ -21,12 +21,24 @@ class UpdateUserProfileRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'phone' => 'required|string|max:255',
-            'dob' => 'required|date',
-            'gender' => 'required|in:male,female,other',
+        $rules = [
+            'first_name' => 'string|max:255',
+            'last_name' => 'string|max:255',
+            'phone' => 'string|max:255',
+            'dob' => 'date',
+            'gender' => 'in:male,female,other',
         ];
+
+        if ($this->isMethod('put')) {
+            $rules = [
+                'first_name' => 'required|string|max:255',
+                'last_name' => 'required|string|max:255',
+                'phone' => 'required|string|max:255',
+                'dob' => 'required|date',
+                'gender' => 'required|in:male,female,other',
+            ];
+        }
+
+        return $rules;
     }
 }

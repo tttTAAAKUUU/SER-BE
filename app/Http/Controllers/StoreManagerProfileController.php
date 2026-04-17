@@ -53,7 +53,8 @@ class StoreManagerProfileController extends Controller
      */
     public function update(UpdateStoreManagerProfileRequest $request, StoreManagerProfile $storeManagerProfile)
     {
-        //
+        $storeManagerProfile->update($request->all());
+        return response()->json(['message' => 'Store manager profile updated successfully']);
     }
 
     /**
