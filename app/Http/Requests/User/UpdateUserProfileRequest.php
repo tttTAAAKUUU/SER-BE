@@ -27,6 +27,7 @@ class UpdateUserProfileRequest extends FormRequest
             'phone' => 'string|max:255',
             'dob' => 'date',
             'gender' => 'in:male,female,other',
+            'profile_image' => 'nullable|image',
         ];
 
         if ($this->isMethod('put')) {
@@ -36,6 +37,7 @@ class UpdateUserProfileRequest extends FormRequest
                 'phone' => 'required|string|max:255',
                 'dob' => 'required|date',
                 'gender' => 'required|in:male,female,other',
+                'profile_image' => 'nullable|image',
             ];
         }
 

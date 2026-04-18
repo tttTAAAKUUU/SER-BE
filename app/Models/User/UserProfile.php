@@ -19,6 +19,7 @@ class UserProfile extends Model
         'phone',
         'dob',
         'gender',
+        'profile_image',
     ];
 
     public function user()

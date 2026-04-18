@@ -23,6 +23,7 @@ class Business extends Model
         'phone',
         'opening_time',
         'closing_time',
+        'profile_image',
     ];
 
     public function location(): BelongsTo

@@ -7,6 +7,7 @@ use App\Models\User\UserProfile;
 use App\Models\ServiceProvider\ServiceProviderProfile;
 use App\Models\Administrator\AdministratorProfile;
 use App\Models\Business\Business;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -347,5 +348,113 @@ class ProfileUpdateTest extends TestCase
         ]);
 
         $response->assertStatus(401);
+    }
+
+    // Profile Image Upload Tests
+
+    public function test_user_can_upload_profile_image(): void
+    {
+        $user = User::factory()->create();
+        UserProfile::factory()->for($user)->create();
+
+        Sanctum::actingAs($user);
+
+        $response = $this->putJson('/api/users/profile', [
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'phone' => '1234567890',
+            'dob' => '1990-01-01',
+            'gender' => 'male',
+            'profile_image' => UploadedFile::fake()->image('avatar.jpg'),
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('user_profiles', [
+            'user_id' => $user->id,
+        ]);
+    }
+
+    public function test_user_cannot_upload_non_image_as_profile_image(): void
+    {
+        $user = User::factory()->create();
+        UserProfile::factory()->for($user)->create();
+
+        Sanctum::actingAs($user);
+
+        $response = $this->putJson('/api/users/profile', [
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'phone' => '1234567890',
+            'dob' => '1990-01-01',
+            'gender' => 'male',
+            'profile_image' => UploadedFile::fake()->create('document.pdf'),
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['profile_image']);
+    }
+
+    public function test_service_provider_can_upload_profile_image(): void
+    {
+        $user = User::factory()->create();
+        ServiceProviderProfile::factory()->for($user)->create();
+
+        Sanctum::actingAs($user);
+
+        $response = $this->putJson('/api/service-providers/profile', [
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'phone' => '1234567890',
+            'dob' => '1990-01-01',
+            'gender' => 'male',
+            'profile_image' => UploadedFile::fake()->image('avatar.jpg'),
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('service_provider_profiles', [
+            'user_id' => $user->id,
+        ]);
+    }
+
+    public function test_administrator_can_upload_profile_image(): void
+    {
+        $user = User::factory()->create();
+        AdministratorProfile::factory()->for($user)->create();
+
+        Sanctum::actingAs($user);
+
+        $response = $this->putJson('/api/administrators/profile', [
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'profile_image' => UploadedFile::fake()->image('avatar.jpg'),
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('administrator_profiles', [
+            'user_id' => $user->id,
+        ]);
+    }
+
+    public function test_business_can_upload_profile_image(): void
+    {
+        $user = User::factory()->create();
+        Business::factory()->for($user, 'owner')->create();
+
+        Sanctum::actingAs($user);
+
+        $response = $this->putJson('/api/businesses/profile', [
+            'name' => 'Test Business',
+            'description' => 'Test description',
+            'email' => 'test@business.com',
+            'phone' => '1234567890',
+            'opening_time' => '08:00',
+            'closing_time' => '18:00',
+            'profile_image' => UploadedFile::fake()->image('avatar.jpg'),
+        ]);
+
+        $response->assertStatus(200);
+        $this->assertDatabaseHas('businesses', [
+            'user_id' => $user->id,
+        ]);
     }
 }

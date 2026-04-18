@@ -69,6 +69,10 @@ class UsersController extends Controller
     {
         $userProfile = $request->user()->userProfile;
 
+        if ($request->hasFile('profile_image')) {
+            $userProfile->profile_image = $request->file('profile_image')->store('public/profile_images');
+        }
+
         $userProfile->update($request->all());
         return response()->json(['message' => 'User profile updated successfully']);
     }

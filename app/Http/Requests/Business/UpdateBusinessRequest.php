@@ -29,6 +29,7 @@ class UpdateBusinessRequest extends FormRequest
                 'phone' => 'required|string',
                 'opening_time' => 'required|date_format:H:i',
                 'closing_time' => 'required|date_format:H:i',
+                'profile_image' => 'nullable|image',
             ];
         }
 
@@ -39,6 +40,7 @@ class UpdateBusinessRequest extends FormRequest
             'phone' => 'string',
             'opening_time' => 'date_format:H:i',
             'closing_time' => 'date_format:H:i',
+            'profile_image' => 'nullable|image',
         ];
     }
 }
