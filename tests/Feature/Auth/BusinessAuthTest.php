@@ -73,7 +73,7 @@ class BusinessAuthTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonStructure(['token']);
+            ->assertJsonStructure(['access_token', 'token_type']);
     }
 
     public function test_authenticated_business_owner_can_get_profile(): void

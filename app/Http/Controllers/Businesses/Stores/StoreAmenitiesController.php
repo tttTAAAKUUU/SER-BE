@@ -6,22 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Business\Employee\AddStoreEmployeeRequest;
 use App\Http\Requests\Business\Employee\UpdateStoreEmployeeRequest;
 use App\Http\Resources\Business\StoreEmployeesResource;
-use App\Models\Business\Employee;
+use App\Models\Business\Store\Amenities;
+use App\Models\Business\Store\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class StoreAmenitiesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $employees = Amenities::join('stores', 'stores.id', 'employees.store_id')
-            ->join('businesses', 'businesses.id', 'stores.business_id')
-            ->where('businesses.user_id', '=', Auth::user()->id)->get();
+        $amenities = Amenities::whereHas('store.business', function ($q) {
+            $q->where('user_id', Auth::user()->id);
+        })->get();
 
-        return StoreEmployeesResource::collection($employees);
+        return StoreEmployeesResource::collection($amenities);
     }
 
     /**

@@ -30,4 +30,14 @@ class Service extends Model
     {
         return $this->hasMany(ServiceAddon::class, 'service_id', 'id');
     }
+
+    public function isActive(): bool
+    {
+        return $this->is_active === true;
+    }
+
+    public function hasAddons(): bool
+    {
+        return $this->addons()->exists();
+    }
 }

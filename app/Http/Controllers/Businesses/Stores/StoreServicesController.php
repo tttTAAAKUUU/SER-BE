@@ -17,8 +17,10 @@ class StoreServicesController extends Controller
      */
     public function index($id)
     {
-        $services = StoreService::with('addons')->join('stores', 'store_services.store_id', 'stores.id')
-            ->where('stores.id', '=', $id)->get();
+        $services = StoreService::with('addons')
+            ->whereHas('store', function ($q) use ($id) {
+                $q->where('id', $id);
+            })->get();
 
         return StoreServicesResource::collection($services);
     }

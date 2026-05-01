@@ -38,6 +38,6 @@ class Business extends Model
 
     public function stores(): HasMany
     {
-        return $this->hasMany(Store::class, 'buisiness_id', 'id');
+        return $this->hasMany(Store::class, 'business_id', 'id');
     }
 }

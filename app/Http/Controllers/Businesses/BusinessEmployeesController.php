@@ -14,9 +14,9 @@ class BusinessEmployeesController extends Controller
      */
     public function index()
     {
-        $employees = Employee::join('stores', 'stores.id', 'employees.store_id')
-            ->join('businesses', 'businesses.id', 'stores.business_id')
-            ->where('businesses.user_id', '=', Auth::user()->id)->get();
+        $employees = Employee::whereHas('store.business', function ($q) {
+            $q->where('user_id', Auth::user()->id);
+        })->get();
 
         return BusinessEmployeesResource::collection($employees);
     }

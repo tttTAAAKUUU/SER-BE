@@ -8,16 +8,14 @@ use App\Http\Requests\User\UpdateUserProfileRequest;
 use App\Http\Resources\Auth\UserProfileResource;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Services\Registration\UserRegistrationService;
+use App\Services\Auth\AuthService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use App\Models\User\User;
-use App\Models\User\UserProfile;
-use Illuminate\Validation\ValidationException;
 
 class UsersController extends Controller
 {
     public function __construct(
         private UserRegistrationService $registration,
+        private AuthService $auth,
     ) {}
 
     public function register(StoreUserProfileRequest $request)
@@ -35,20 +33,16 @@ class UsersController extends Controller
 
     public function login(LoginRequest $request)
     {
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
-        }
-
-        return ['token' => $user->createToken($request->device_name)->plainTextToken];
+        return $this->auth->login(
+            $request->email,
+            $request->password,
+            $request->device_name,
+        );
     }
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $this->auth->logout($request->user());
         return response()->json(['message' => 'Logged out successfully']);
     }
 

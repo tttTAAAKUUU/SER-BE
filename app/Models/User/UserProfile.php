@@ -4,7 +4,6 @@ namespace App\Models\User;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Symfony\Component\Mime\Address;
 
 class UserProfile extends Model
 {
@@ -13,7 +12,6 @@ class UserProfile extends Model
 
     protected $fillable = [
         'user_id',
-        'address_id',
         'first_name',
         'last_name',
         'phone',
@@ -25,10 +23,5 @@ class UserProfile extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function address()
-    {
-        return $this->belongsTo(Address::class);
     }
 }

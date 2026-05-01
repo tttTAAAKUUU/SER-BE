@@ -78,7 +78,7 @@ class CustomerAuthTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonStructure(['token']);
+            ->assertJsonStructure(['access_token', 'token_type']);
     }
 
     public function test_user_cannot_login_with_wrong_password(): void
@@ -94,7 +94,7 @@ class CustomerAuthTest extends TestCase
             'device_name' => 'test-device',
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(401);
     }
 
     public function test_user_cannot_login_with_unknown_email(): void
@@ -105,7 +105,7 @@ class CustomerAuthTest extends TestCase
             'device_name' => 'test-device',
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(401);
     }
 
     public function test_authenticated_user_can_get_profile(): void

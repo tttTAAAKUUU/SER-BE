@@ -18,4 +18,9 @@ class Location extends Model
         'lng',
         'postal_code',
     ];
+
+    public function hasCoords(): bool
+    {
+        return $this->lat !== null && $this->lng !== null;
+    }
 }

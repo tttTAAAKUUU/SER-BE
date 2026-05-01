@@ -6,6 +6,7 @@ use App\Models\Business\Store\Employee;
 use App\Models\Business\Store\StoreService;
 use App\Models\Business\Store\StoreServiceAddon;
 use App\Models\User\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -43,5 +44,10 @@ class Booking extends Model
     public function addons(): HasMany
     {
         return $this->hasMany(BookingAddon::class);
+    }
+
+    public function isPast(): bool
+    {
+        return Carbon::parse($this->time)->isPast();
     }
 }

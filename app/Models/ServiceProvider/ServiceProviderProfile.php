@@ -34,6 +34,6 @@ class ServiceProviderProfile extends Model
 
     public function services(): HasManyThrough
     {
-        return $this->hasManyThrough(Service::class, ProviderService::class, 'service_id', 'provider_service_id');
+        return $this->hasManyThrough(Service::class, ProviderService::class, 'service_provider_profile_id', 'service_id');
     }
 }

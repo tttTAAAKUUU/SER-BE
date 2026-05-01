@@ -60,7 +60,7 @@ class ServiceProviderAuthTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonStructure(['token']);
+            ->assertJsonStructure(['access_token', 'token_type']);
     }
 
     public function test_authenticated_service_provider_can_get_profile(): void
