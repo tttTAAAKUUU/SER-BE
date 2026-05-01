@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
+use App\Services\Booking\Exceptions\EmployeeDoubleBookingException;
+use App\Services\Booking\Exceptions\AddonNotBelongsToServiceException;
+use App\Services\Booking\Exceptions\UserNotCustomerOfStoreException;
 
 class Handler extends ExceptionHandler
 {
@@ -39,6 +42,30 @@ class Handler extends ExceptionHandler
                 return response()->json([
                     'message' => 'Resource not found',
                 ], Response::HTTP_NOT_FOUND);
+            }
+        });
+
+        $this->renderable(function (EmployeeDoubleBookingException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                ], 409);
+            }
+        });
+
+        $this->renderable(function (AddonNotBelongsToServiceException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+        });
+
+        $this->renderable(function (UserNotCustomerOfStoreException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $e->getMessage(),
+                ], 403);
             }
         });
     }

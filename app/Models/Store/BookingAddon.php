@@ -13,7 +13,7 @@ class BookingAddon extends Model
     use HasFactory;
 
     protected $fillable = [
-        'store_service_id',
+        'store_service_addon_id',
         'booking_id',
     ];
 
