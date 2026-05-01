@@ -14,6 +14,7 @@ use Throwable;
 use App\Services\Booking\Exceptions\EmployeeDoubleBookingException;
 use App\Services\Booking\Exceptions\AddonNotBelongsToServiceException;
 use App\Services\Booking\Exceptions\UserNotCustomerOfStoreException;
+use App\Services\Registration\Exceptions\RegistrationFailedException;
 
 class Handler extends ExceptionHandler
 {
@@ -110,6 +111,14 @@ class Handler extends ExceptionHandler
                 'message' => 'Validation failed',
                 'errors' => $exception->errors()
             ], 422);
+        }
+
+        // Handle RegistrationFailedException
+        if ($exception instanceof RegistrationFailedException) {
+            return response()->json([
+                'message' => 'Registration failed',
+                'error' => $exception->getMessage(),
+            ], 500);
         }
 
         // Handle HTTP exceptions

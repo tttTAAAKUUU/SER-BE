@@ -4,22 +4,22 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Business\RegisterBusinessRequest;
-use App\Http\Requests\Business\UpdateAdministratorProfileRequest;
-use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Business\UpdateBusinessRequest;
+use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\Auth\BusinessResource;
+use App\Services\Registration\UserRegistrationService;
 use App\Models\User\User;
 use App\Models\Business\Business;
-use App\Models\Location\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class BusinessesController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function __construct(
+        private UserRegistrationService $registration,
+    ) {}
+
     public function index()
     {
         return response()->json(['message' => 'To be implemented']);
@@ -27,51 +27,16 @@ class BusinessesController extends Controller
 
     public function register(RegisterBusinessRequest $request)
     {
-        $userData = $request->validated('user');
-        $locationData = $request->validated('location');
-        $businessData = $request->validated('business');
-
-        try {
-            $user = User::create([
-                'name' => $userData['first_name'] . ' ' . $userData['last_name'],
-                'email' => $userData['email'],
-                'password' => Hash::make($userData['password']),
-            ]);
-
-            $location  = Location::create([
-                'street_address' => $locationData['street_address'],
-                'suburb' => $locationData['suburb'],
-                'city' => $locationData['city'],
-                'lat' => $locationData['lat'],
-                'lng' => $locationData['lng'],
-                'postal_code' => $locationData['postal_code'],
-            ]);
-
-            Business::create([
-                'user_id' => $user->id,
-                'location_id' => $location->id,
-                'name' => $businessData['name'],
-                'email' => $businessData['email'],
-                'phone'  => $businessData['phone'],
-                'opening_time' => $businessData['opening_time'],
-                'closing_time' => $businessData['closing_time'],
-            ]);
-
-            return response()->json(['message' => 'Business registered successfully']);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Business registration failed',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        $data = $request->validated();
+        $this->registration->registerBusiness($data['user'], $data['business'], $data['location']);
+        return response()->json(['message' => 'Business registered successfully']);
     }
 
     public function profile(Request $request)
     {
         $user = $request->user();
         $user->load('business', 'business.location');
-
-        return  new BusinessResource($user);
+        return new BusinessResource($user);
     }
 
     public function dashboard()
@@ -107,7 +72,6 @@ class BusinessesController extends Controller
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-
         return response()->json(['message' => 'Logged out successfully']);
     }
 }

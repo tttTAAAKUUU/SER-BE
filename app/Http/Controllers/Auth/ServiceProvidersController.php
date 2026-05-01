@@ -7,7 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\ServiceProvider\StoreServiceProviderProfileRequest;
 use App\Http\Requests\ServiceProvider\UpdateServiceProviderProfileRequest;
 use App\Http\Resources\Auth\ServiceProviderProfileResource;
-use App\Models\ServiceProvider\ServiceProviderProfile;
+use App\Services\Registration\UserRegistrationService;
 use App\Models\User\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -15,42 +15,21 @@ use Illuminate\Validation\ValidationException;
 
 class ServiceProvidersController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function __construct(
+        private UserRegistrationService $registration,
+    ) {}
+
     public function register(StoreServiceProviderProfileRequest $request)
     {
-        try {
-            $user = User::create([
-                'name' => $request->first_name . ' ' . $request->last_name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-            ]);
-
-            ServiceProviderProfile::create([
-                'user_id' => $user->id,
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'phone' => $request->phone,
-                'dob' => $request->dob,
-                'gender' => $request->gender,
-                'bio' => $request->bio,
-            ]);
-
-            return response()->json(['message' => 'Service provider registered successfully']);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Service provider registration failed',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        $this->registration->registerServiceProvider($request->validated());
+        return response()->json(['message' => 'Service provider registered successfully']);
     }
 
     public function profile(Request $request)
     {
         $user = $request->user();
         $user->load('serviceProviderProfile');
-        return  new ServiceProviderProfileResource($user);
+        return new ServiceProviderProfileResource($user);
     }
 
     public function update(UpdateServiceProviderProfileRequest $request)
@@ -81,7 +60,6 @@ class ServiceProvidersController extends Controller
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-
         return response()->json(['message' => 'Logged out successfully']);
     }
 }
