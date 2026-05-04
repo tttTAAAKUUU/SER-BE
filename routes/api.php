@@ -24,6 +24,11 @@ use App\Http\Controllers\User\UserServiceRequestsController;
 // Public routes
 Route::group(['prefix' => 'services'], function () {
     Route::get('/', [ServicesController::class, 'index']);
+
+    // Fitness-specific routes (must come before generic {id} route)
+    Route::get('/fitness', [ServicesController::class, 'fitnessIndex']);
+    Route::get('/fitness/{id}', [ServicesController::class, 'fitnessShow']);
+
     Route::get('/{id}', [ServicesController::class, 'show']);
     Route::put('/{id}', [ServicesController::class, 'update']);
     Route::delete('/{id}', [ServicesController::class, 'destroy'])->middleware('auth:sanctum');
@@ -56,6 +61,7 @@ Route::group(['prefix' => 'users'], function () {
         Route::group(['prefix' => 'service-requests'], function () {
             Route::get('/', [UserServiceRequestsController::class, 'index']);
             Route::post('/', [UserServiceRequestsController::class, 'store']);
+            Route::post('/fitness', [UserServiceRequestsController::class, 'fitnessStore']);
             Route::get('/{serviceRequest}', [UserServiceRequestsController::class, 'show']);
             Route::put('/{serviceRequest}', [UserServiceRequestsController::class, 'update']);
             Route::delete('/{serviceRequest}', [UserServiceRequestsController::class, 'destroy']);
@@ -83,6 +89,11 @@ Route::group(['prefix' => 'service-providers'], function () {
 
         Route::group(['prefix' => 'services'], function () {
             Route::get('/', [ProviderServicesController::class, 'index']);
+
+            // Fitness-specific routes (must come before generic {id} route)
+            Route::get('/fitness', [ServiceProviderServicesController::class, 'fitnessIndex']);
+            Route::post('/fitness', [ServiceProviderServicesController::class, 'fitnessStore']);
+
             Route::get('/{id}', [ProviderServicesController::class, 'show']);
             Route::post('/', [ProviderServicesController::class, 'store']);
             Route::put('/{id}', [ProviderServicesController::class, 'update']);

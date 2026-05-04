@@ -36,6 +36,13 @@ class ServicesSeeder extends Seeder
                 'name' => 'Kids Services',
                 'description' => 'Haircuts for children under 12',
             ],
+
+            [
+                'key' => 'fitness_training',
+                'name' => 'Fitness Training',
+                'description' => 'Personal training sessions with mobile, virtual, and group options',
+                'is_active' => true,
+            ],
         ],
 
         'services' => [
@@ -111,6 +118,58 @@ class ServicesSeeder extends Seeder
                 'price' => 180.00,
                 'duration_minutes' => 30,
             ],
+
+            // FITNESS TRAINING
+            [
+                'key' => 'mobile_personal_trainer',
+                'category_key' => 'fitness_training',
+                'name' => 'Mobile Personal Trainer',
+                'description' => 'A certified personal trainer comes to your location for a one-on-one or duo training session.',
+                'price' => 450.00,
+                'duration_minutes' => 60,
+            ],
+            [
+                'key' => 'virtual_pro_session',
+                'category_key' => 'fitness_training',
+                'name' => 'Virtual Pro Session',
+                'description' => 'A live one-on-one video call training session from anywhere, at a lower price point.',
+                'price' => 350.00,
+                'duration_minutes' => 45,
+            ],
+            [
+                'key' => 'power_team_group',
+                'category_key' => 'fitness_training',
+                'name' => 'Power Team Group',
+                'description' => 'A shared group session for 3 clients at a discounted group rate.',
+                'price' => 1050.00,
+                'duration_minutes' => 90,
+            ],
+
+            // WORKOUT TYPES (linked to fitness services via addons)
+            [
+                'key' => 'functional_flow_hiit',
+                'category_key' => 'fitness_training',
+                'name' => 'Functional Flow / HIIT',
+                'description' => 'Dynamic functional training and high-intensity interval training workouts.',
+                'price' => 0.00,
+                'duration_minutes' => 60,
+            ],
+            [
+                'key' => 'strength_resistance',
+                'category_key' => 'fitness_training',
+                'name' => 'Strength & Resistance Training',
+                'description' => 'Muscle building and strength conditioning workouts.',
+                'price' => 0.00,
+                'duration_minutes' => 60,
+            ],
+            [
+                'key' => 'reformer_pilates',
+                'category_key' => 'fitness_training',
+                'name' => 'Reformer Pilates',
+                'description' => 'Pilates exercises performed on a reformer machine.',
+                'price' => 0.00,
+                'duration_minutes' => 60,
+            ],
         ],
 
         'service_addons' => [
@@ -139,6 +198,22 @@ class ServicesSeeder extends Seeder
                 'price' => 30.00,
                 'duration_minutes' => 10,
             ],
+
+            // FITNESS EQUIPMENT ADDONS (per-person fees)
+            [
+                'service_key' => 'strength_resistance',
+                'name' => 'Strength Equipment',
+                'description' => 'Trainer brings weights and resistance equipment',
+                'price' => 50.00,
+                'duration_minutes' => 0,
+            ],
+            [
+                'service_key' => 'reformer_pilates',
+                'name' => 'Reformer Equipment',
+                'description' => 'Trainer brings reformer Pilates machine',
+                'price' => 250.00,
+                'duration_minutes' => 0,
+            ],
         ],
     ];
     /**
@@ -150,6 +225,7 @@ class ServicesSeeder extends Seeder
             $createdCategory = ServiceCategory::create([
                 'name' => $category['name'],
                 'description' => $category['description'],
+                'is_active' => $category['is_active'] ?? true,
             ]);
 
             $categoryMap[$category['key']] = $createdCategory->id;

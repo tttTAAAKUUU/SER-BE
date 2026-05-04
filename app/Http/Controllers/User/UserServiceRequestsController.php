@@ -47,6 +47,38 @@ class UserServiceRequestsController extends Controller
         return response()->json(['serviceRequest' => $serviceRequest]);
     }
 
+    public function fitnessStore(\App\Http\Requests\Service\FitnessServiceRequest $request)
+    {
+        $serviceRequest = ServiceRequest::create([
+            'user_id' => Auth::id(),
+            'location_id' => $request->location_id,
+            'service_pillar' => $request->service_pillar,
+            'capacity' => $request->capacity,
+            'workout_category' => $request->workout_category,
+            'equipment_required' => $request->equipment_required,
+            'starts_at' => $request->starts_at,
+            'notes' => $request->notes,
+            'status' => 'pending',
+        ]);
+
+        $serviceRequest->load('location');
+
+        return response()->json([
+            'data' => [
+                'id' => $serviceRequest->id,
+                'service_pillar' => $serviceRequest->service_pillar,
+                'capacity' => $serviceRequest->capacity,
+                'workout_category' => $serviceRequest->workout_category,
+                'equipment_required' => $serviceRequest->equipment_required,
+                'notes' => $serviceRequest->notes,
+                'status' => $serviceRequest->status,
+                'price_breakdown' => $serviceRequest->getFitnessPriceBreakdown(
+                    \App\Models\Service\Service::find($request->service_id)
+                ),
+            ],
+        ], 201);
+    }
+
     /**
      * Display the specified resource.
      */
