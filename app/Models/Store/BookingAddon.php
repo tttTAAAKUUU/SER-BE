@@ -14,7 +14,13 @@ class BookingAddon extends Model
 
     protected $fillable = [
         'store_service_addon_id',
+        'service_addon_id',
         'booking_id',
+        'quantity',
+    ];
+
+    protected $casts = [
+        'quantity' => 'integer',
     ];
 
     public function booking(): BelongsTo

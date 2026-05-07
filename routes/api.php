@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\CarWash\CarWashAdminController;
 use App\Http\Controllers\Auth\AdministratorsController;
 use App\Http\Controllers\Auth\ServiceProvidersController;
 use Illuminate\Support\Facades\Route;
@@ -7,6 +8,8 @@ use App\Http\Controllers\Auth\UsersController;
 use App\Http\Controllers\StoreManagerProfileController;
 use App\Http\Controllers\ProviderServicesController;
 use App\Http\Controllers\Services\ServicesController;
+use App\Http\Controllers\Cleaning\CleaningBookingController;
+use App\Http\Controllers\Cleaning\CleaningServicesController;
 use App\Http\Controllers\Admin\Services\ServicesController as AdminServicesController;
 use App\Http\Controllers\Admin\ServiceCategories\ServiceCategoriesController;
 use App\Http\Controllers\Auth\BusinessesController;
@@ -14,6 +17,8 @@ use App\Http\Controllers\Businesses\BusinessEmployeesController;
 use App\Http\Controllers\Businesses\Stores\BookingController;
 use App\Http\Controllers\Businesses\Stores\BusinessServicesController;
 use App\Http\Controllers\Businesses\Stores\BusinessStoresController;
+use App\Http\Controllers\CarWash\CarWashBookingsController;
+use App\Http\Controllers\CarWash\CarWashWasherProfilesController;
 use App\Http\Controllers\Businesses\Stores\StoreEmployeesController;
 use App\Http\Controllers\Businesses\Stores\StoreServicesController;
 use App\Http\Controllers\ServiceProvider\ProviderServiceRequestsController;
@@ -32,6 +37,62 @@ Route::group(['prefix' => 'services'], function () {
     Route::get('/{id}', [ServicesController::class, 'show']);
     Route::put('/{id}', [ServicesController::class, 'update']);
     Route::delete('/{id}', [ServicesController::class, 'destroy'])->middleware('auth:sanctum');
+});
+
+Route::group(['prefix' => 'cleaning'], function () {
+    Route::get('/packages', [CleaningServicesController::class, 'packages']);
+    Route::get('/packages/{id}', [CleaningServicesController::class, 'showPackage']);
+    Route::get('/addons', [CleaningServicesController::class, 'addons']);
+    Route::get('/providers', [CleaningServicesController::class, 'providers']);
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/bookings', [CleaningBookingController::class, 'store']);
+        Route::get('/bookings', [CleaningBookingController::class, 'index']);
+        Route::get('/bookings/{id}', [CleaningBookingController::class, 'show']);
+        Route::post('/bookings/{id}/confirm-payment', [CleaningBookingController::class, 'confirmPayment']);
+        Route::post('/bookings/{id}/cancel', [CleaningBookingController::class, 'cancel']);
+        Route::post('/bookings/{id}/status', [CleaningBookingController::class, 'updateStatus']);
+        Route::post('/price-preview', [CleaningBookingController::class, 'pricePreview']);
+        Route::get('/templates', [CleaningBookingController::class, 'templates']);
+        Route::get('/templates/{id}', [CleaningBookingController::class, 'showTemplate']);
+        Route::get('/templates/{id}/week-price', [CleaningBookingController::class, 'weekPrice']);
+        Route::patch('/sessions/{id}', [CleaningBookingController::class, 'updateSession']);
+        Route::post('/bookings/{id}/request-upgrade', [CleaningBookingController::class, 'requestUpgrade']);
+        Route::post('/bookings/{id}/upgrade-request', [CleaningBookingController::class, 'getUpgradeRequest']);
+        Route::post('/upgrades/{id}/accept', [CleaningBookingController::class, 'acceptUpgrade']);
+        Route::post('/upgrades/{id}/decline', [CleaningBookingController::class, 'declineUpgrade']);
+        Route::post('/bookings/{id}/sign-off', [CleaningBookingController::class, 'signOff']);
+        Route::post('/bookings/{id}/start-no-show-clock', [CleaningBookingController::class, 'startNoShowClock']);
+        Route::get('/bookings/{id}/signoff-status', [CleaningBookingController::class, 'signoffStatus']);
+    });
+});
+
+Route::group(['prefix' => 'car-wash'], function () {
+    Route::get('/packages', [CarWashWasherProfilesController::class, 'listByTier']);
+    Route::get('/washers', [CarWashWasherProfilesController::class, 'listWashers']);
+    Route::get('/profiles/tier/{tier}', [CarWashWasherProfilesController::class, 'listByTier']);
+    Route::get('/profiles/{profileId}', [CarWashWasherProfilesController::class, 'show']);
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/pricing', [CarWashWasherProfilesController::class, 'storePricing']);
+        Route::get('/washers/availability', [CarWashWasherProfilesController::class, 'getAvailability']);
+        Route::post('/washers/availability', [CarWashWasherProfilesController::class, 'setAvailability']);
+
+        Route::get('/bookings', [CarWashBookingsController::class, 'index']);
+        Route::get('/washers/bookings', [CarWashBookingsController::class, 'washerIndex']);
+        Route::post('/bookings', [CarWashBookingsController::class, 'store']);
+        Route::get('/bookings/{id}', [CarWashBookingsController::class, 'show']);
+        Route::post('/bookings/{id}/complete', [CarWashBookingsController::class, 'markComplete']);
+        Route::post('/bookings/{id}/confirm-payment', [CarWashBookingsController::class, 'confirmPayment']);
+        Route::post('/bookings/{id}/dispute', [CarWashBookingsController::class, 'raiseDispute']);
+        Route::post('/bookings/{id}/cancel', [CarWashBookingsController::class, 'cancel']);
+        Route::post('/disputes/{id}/resolve', [CarWashBookingsController::class, 'resolveDispute']);
+    });
+});
+
+Route::group(['prefix' => 'provider'], function () {
+    Route::get('/{id}/availability', [CleaningBookingController::class, 'getProviderAvailability']);
+    Route::post('/{id}/availability', [CleaningBookingController::class, 'setProviderAvailability']);
 });
 
 Route::group(['prefix' => 'users'], function () {
@@ -86,6 +147,10 @@ Route::group(['prefix' => 'service-providers'], function () {
         Route::get('/profile', [ServiceProvidersController::class, 'profile']);
         Route::put('/profile', [ServiceProvidersController::class, 'update']);
         Route::patch('/profile', [ServiceProvidersController::class, 'update']);
+        Route::put('/profile/washer-tier', [ServiceProvidersController::class, 'updateWasherTier']);
+        Route::post('/equipment-checklist', [ServiceProvidersController::class, 'storeEquipmentChecklist']);
+        Route::put('/equipment-checklist', [ServiceProvidersController::class, 'updateEquipmentChecklist']);
+        Route::post('/equipment-checklist/reverify', [ServiceProvidersController::class, 'reverifyEquipmentChecklist']);
 
         Route::group(['prefix' => 'services'], function () {
             Route::get('/', [ProviderServicesController::class, 'index']);
@@ -120,6 +185,11 @@ Route::group(['prefix' => 'administrators'], function () {
         Route::put('/profile', [AdministratorsController::class, 'update']);
         Route::patch('/profile', [AdministratorsController::class, 'update']);
         Route::get('/dashboard', [AdministratorsController::class, 'dashboard']);
+
+        Route::group(['prefix' => 'car-wash'], function () {
+            Route::get('/applications', [CarWashAdminController::class, 'pendingApplications']);
+            Route::post('/applications/{id}/review', [CarWashAdminController::class, 'reviewApplication']);
+        });
 
         Route::group(['prefix' => 'service-categories'], function () {
             Route::get('/', [ServiceCategoriesController::class, 'index']);

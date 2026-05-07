@@ -16,7 +16,13 @@ class ServiceAddon extends Model
         'name',
         'description',
         'price',
-        'duration_minutes'
+        'duration_minutes',
+        'addon_category',
+        'countable',
+    ];
+
+    protected $casts = [
+        'countable' => 'boolean',
     ];
 
     public function service(): BelongsTo {

@@ -19,6 +19,17 @@ class Service extends Model
         'price',
         'duration_minutes',
         'is_active',
+        'room_tiers',
+        'break_duration_minutes',
+        'package_type',
+        'bathroom_cap',
+    ];
+
+    protected $casts = [
+        'room_tiers' => 'array',
+        'break_duration_minutes' => 'integer',
+        'bathroom_cap' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     public function serviceCategory(): BelongsTo
