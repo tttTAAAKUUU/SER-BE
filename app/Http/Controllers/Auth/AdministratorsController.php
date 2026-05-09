@@ -54,6 +54,7 @@ class AdministratorsController extends Controller
             $request->email,
             $request->password,
             $request->device_name,
+            'administrator',
         );
     }
 

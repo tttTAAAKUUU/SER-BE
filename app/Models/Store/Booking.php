@@ -100,6 +100,21 @@ class Booking extends Model
         return $this->hasMany(BookingAddon::class);
     }
 
+    public function upgradeRequests(): HasMany
+    {
+        return $this->hasMany(\App\Models\Cleaning\UpgradeRequest::class);
+    }
+
+    public function signOffs(): HasMany
+    {
+        return $this->hasMany(\App\Models\Cleaning\SignOff::class);
+    }
+
+    public function getProviderIdAttribute($value)
+    {
+        return $value ?? $this->employee_id;
+    }
+
     public function canTransitionTo(string $status): bool
     {
         $allowed = self::VALID_TRANSITIONS[$this->status] ?? [];

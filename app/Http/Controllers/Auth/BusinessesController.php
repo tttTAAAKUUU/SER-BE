@@ -60,6 +60,7 @@ class BusinessesController extends Controller
             $request->email,
             $request->password,
             $request->device_name,
+            'business',
         );
     }
 

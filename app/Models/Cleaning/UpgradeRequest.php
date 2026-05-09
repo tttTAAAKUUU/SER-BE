@@ -59,4 +59,9 @@ class UpgradeRequest extends Model
     {
         return $this->status === 'declined';
     }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
 }

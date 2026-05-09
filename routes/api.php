@@ -207,7 +207,7 @@ Route::group(['prefix' => 'administrators'], function () {
             Route::delete('/{id}', [AdminServicesController::class, 'destroy']);
         });
 
-        Route::post('/logout', [ServiceProvidersController::class, 'logout']);
+        Route::post('/logout', [AdministratorsController::class, 'logout']);
     });
 });
 
@@ -262,7 +262,7 @@ Route::group(['prefix' => 'businesses'], function () {
             Route::get('/', [BusinessEmployeesController::class, 'index']);
         });
 
-        Route::post('/logout', [ServiceProvidersController::class, 'logout']);
+        Route::post('/logout', [BusinessesController::class, 'logout']);
     });
 });
 
@@ -271,5 +271,6 @@ Route::group(['prefix' => 'store-managers'], function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::put('/profile', [StoreManagerProfileController::class, 'update']);
         Route::patch('/profile', [StoreManagerProfileController::class, 'update']);
+        Route::post('/logout', [BusinessesController::class, 'logout']);
     });
 });

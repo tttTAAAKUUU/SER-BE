@@ -52,6 +52,7 @@ class ServiceProviderAuthTest extends TestCase
             'email' => 'provider@test.com',
             'password' => bcrypt('password123'),
         ]);
+        ServiceProviderProfile::factory()->for($user)->create();
 
         $response = $this->postJson('/api/service-providers/login', [
             'email' => 'provider@test.com',
@@ -61,6 +62,22 @@ class ServiceProviderAuthTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure(['access_token', 'token_type']);
+    }
+
+    public function test_service_provider_cannot_login_with_wrong_user_type(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'wrongtype@test.com',
+            'password' => bcrypt('password123'),
+        ]);
+
+        $response = $this->postJson('/api/service-providers/login', [
+            'email' => 'wrongtype@test.com',
+            'password' => 'password123',
+            'device_name' => 'test-device',
+        ]);
+
+        $response->assertStatus(401);
     }
 
     public function test_authenticated_service_provider_can_get_profile(): void

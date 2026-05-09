@@ -7,8 +7,11 @@ use App\Models\Service\Service;
 use App\Models\Service\ServiceAddon;
 use App\Models\Cleaning\RecurringTemplate;
 use App\Models\Cleaning\RecurringSession;
-use App\Services\Cleaning\RecurringSessionGenerator;
 use App\Services\Cleaning\AvailabilityService;
+use App\Services\Cleaning\UpgradeRequestService;
+use App\Services\Cleaning\SignOffService;
+use App\Services\Cleaning\BookingClockService;
+use App\Services\Cleaning\CleaningBookingService;
 use App\Models\Store\Booking;
 use App\Models\Store\BookingAddon;
 use App\Services\Cleaning\PricingEngine;
@@ -17,15 +20,17 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class CleaningBookingController extends Controller
 {
     public function __construct(
+        private CleaningBookingService $bookingService,
         private PricingEngine $pricingEngine,
         private TimeValidationService $timeValidation,
-        private RecurringSessionGenerator $sessionGenerator,
-        private AvailabilityService $availabilityService
+        private AvailabilityService $availabilityService,
+        private UpgradeRequestService $upgradeRequestService,
+        private SignOffService $signOffService,
+        private BookingClockService $bookingClockService
     ) {}
 
     public function store(Request $request): JsonResponse
@@ -50,21 +55,8 @@ class CleaningBookingController extends Controller
         $service = Service::with('addons')->findOrFail($validated['service_id']);
         $addons = $validated['addons'] ?? [];
 
-        // Build addon array for time validation
-        $addonDurations = [];
-        foreach ($addons as $addonInput) {
-            $addon = ServiceAddon::find($addonInput['addon_id']);
-            if ($addon) {
-                $addonDurations[] = [
-                    'addon_id' => $addon->id,
-                    'name' => $addon->name,
-                    'duration_minutes' => $addon->duration_minutes,
-                    'count' => $addonInput['count'],
-                ];
-            }
-        }
+        $addonDurations = $this->bookingService->buildAddonDurations($addons);
 
-        // Time validation
         $timeResult = $this->timeValidation->validateSessionDuration(
             packageType: $validated['package_type'],
             addons: $addonDurations,
@@ -83,25 +75,14 @@ class CleaningBookingController extends Controller
             ], 422);
         }
 
-        // Pricing
+        $providerTransportRate = $this->bookingService->getProviderTransportRate($validated['provider_id'] ?? null);
         $pricingResult = $this->pricingEngine->calculateSessionPrice(
             packageType: $validated['package_type'],
             roomTier: $validated['room_tier'],
             addons: $addonDurations,
-            distanceKm: (float) ($validated['distance_km'] ?? 0)
+            distanceKm: (float) ($validated['distance_km'] ?? 0),
+            transportRate: $providerTransportRate
         );
-
-        // Use provider-specific transport rate if available
-        $providerTransportRate = $this->getProviderTransportRate($validated['provider_id'] ?? null);
-        if ($providerTransportRate !== null) {
-            $pricingResult = $this->pricingEngine->calculateSessionPrice(
-                packageType: $validated['package_type'],
-                roomTier: $validated['room_tier'],
-                addons: $addonDurations,
-                distanceKm: (float) ($validated['distance_km'] ?? 0),
-                transportRate: $providerTransportRate
-            );
-        }
 
         $scheduledTime = isset($validated['scheduled_date'])
             ? Carbon::parse($validated['scheduled_date'])
@@ -109,9 +90,8 @@ class CleaningBookingController extends Controller
 
         $isRecurring = in_array($validated['scheduling_mode'], ['weekly', 'fortnightly']);
 
-        // Check provider availability for recurring bookings
         if ($isRecurring && isset($validated['recurring_days'])) {
-            $dayMask = $this->daysToMask($validated['recurring_days']);
+            $dayMask = $this->bookingService->daysToMask($validated['recurring_days']);
             $availabilityResult = $this->availabilityService->checkProviderAvailability(
                 (int) $validated['provider_id'],
                 $dayMask,
@@ -131,187 +111,19 @@ class CleaningBookingController extends Controller
         }
 
         if ($isRecurring) {
-            return $this->createRecurringBooking($validated, $service, $scheduledTime);
+            $result = $this->bookingService->createRecurringBooking($validated, $service, $scheduledTime);
+            return response()->json([
+                'data' => $this->formatTemplate($result['template']),
+            ], 201);
         }
 
-        $booking = $this->createSingleBooking($validated, $service, $pricingResult, $timeResult, $scheduledTime);
+        $booking = $this->bookingService->createSingleBooking(
+            $validated, $service, $pricingResult, $timeResult, $scheduledTime
+        );
 
         return response()->json([
             'data' => $this->formatBooking($booking),
         ], 201);
-    }
-
-    private function createSingleBooking(array $validated, Service $service, array $pricingResult, array $timeResult, $scheduledTime): Booking
-    {
-        return DB::transaction(function () use ($validated, $service, $pricingResult, $timeResult, $scheduledTime) {
-            $booking = Booking::create([
-                'user_id' => Auth::id(),
-                'store_service_id' => null,
-                'time_category' => 'morning',
-                'time' => $scheduledTime,
-                'service_location' => $validated['service_location'],
-                'service_id' => $service->id,
-                'package_type' => $validated['package_type'],
-                'room_tier' => $validated['room_tier'],
-                'bathroom_count' => $validated['bathroom_count'],
-                'scheduling_mode' => $validated['scheduling_mode'],
-                'recurring_days' => $validated['recurring_days'] ?? null,
-                'start_date' => $validated['start_date'] ?? null,
-                'projected_duration_minutes' => $timeResult['projected_minutes'] - $timeResult['break_minutes'],
-                'break_minutes' => $timeResult['break_minutes'],
-                'distance_km' => $validated['distance_km'] ?? 0,
-                'transport_deposit' => $pricingResult['transport_deposit'],
-                'subtotal' => $pricingResult['subtotal'],
-                'total' => $pricingResult['total'],
-                'ser_commission' => $pricingResult['ser_commission'],
-                'cleaner_payout' => $pricingResult['cleaner_payout'],
-                'status' => 'pending_payment',
-            ]);
-
-            $addons = $validated['addons'] ?? [];
-            foreach ($addons as $addonInput) {
-                BookingAddon::create([
-                    'booking_id' => $booking->id,
-                    'service_addon_id' => $addonInput['addon_id'],
-                    'quantity' => $addonInput['count'],
-                ]);
-            }
-
-            return $booking;
-        });
-    }
-
-    private function createRecurringBooking(array $validated, Service $service, $scheduledTime): JsonResponse
-    {
-        $addons = $validated['addons'] ?? [];
-
-        // Build addon durations
-        $addonDurations = [];
-        foreach ($addons as $addonInput) {
-            $addon = ServiceAddon::find($addonInput['addon_id']);
-            if ($addon) {
-                $addonDurations[] = [
-                    'addon_id' => $addon->id,
-                    'name' => $addon->name,
-                    'duration_minutes' => $addon->duration_minutes,
-                    'count' => $addonInput['count'],
-                ];
-            }
-        }
-
-        $addonConfig = array_map(fn ($a) => [
-            'addon_id' => $a['addon_id'],
-            'count' => $a['count'],
-        ], $addons);
-
-        // Create recurring template
-        $template = RecurringTemplate::create([
-            'user_id' => Auth::id(),
-            'provider_id' => $validated['provider_id'],
-            'service_id' => $service->id,
-            'package_type' => $validated['package_type'],
-            'room_tier' => $validated['room_tier'],
-            'bathroom_count' => $validated['bathroom_count'],
-            'scheduling_mode' => $validated['scheduling_mode'],
-            'recurring_days' => $validated['recurring_days'],
-            'start_date' => $validated['start_date'],
-            'addon_config' => $addonConfig,
-            'distance_km' => $validated['distance_km'] ?? 0,
-            'service_location' => $validated['service_location'],
-            'is_active' => true,
-        ]);
-
-        // Generate sessions
-        $sessions = $this->sessionGenerator->generateForTemplate($template);
-
-        // Create first session booking
-        $firstSession = $sessions->first();
-        $firstSessionBooking = $this->createBookingForSession(
-            $template,
-            $firstSession,
-            $service,
-            $scheduledTime
-        );
-
-        // Link first session to booking
-        $firstSession->update(['booking_id' => $firstSessionBooking->id]);
-
-        return response()->json([
-            'data' => $this->formatTemplate($template),
-        ], 201);
-    }
-
-    private function createBookingForSession(RecurringTemplate $template, RecurringSession $session, Service $service, $scheduledTime): Booking
-    {
-        $timeResult = $this->timeValidation->validateSessionDuration(
-            packageType: $template->package_type,
-            addons: $this->buildAddonDurations($template->addon_config),
-            bathroomCount: $template->bathroom_count,
-            roomTier: $template->room_tier
-        );
-
-        $pricingResult = $this->pricingEngine->calculateSessionPrice(
-            packageType: $template->package_type,
-            roomTier: $template->room_tier,
-            addons: $this->buildAddonDurations($template->addon_config),
-            distanceKm: (float) $template->distance_km
-        );
-
-        $sessionTime = Carbon::parse($session->scheduled_date);
-
-        return DB::transaction(function () use ($template, $session, $service, $pricingResult, $timeResult, $sessionTime) {
-            $booking = Booking::create([
-                'user_id' => $template->user_id,
-                'store_service_id' => null,
-                'time_category' => 'morning',
-                'time' => $sessionTime,
-                'service_location' => $template->service_location,
-                'service_id' => $template->service_id,
-                'package_type' => $template->package_type,
-                'room_tier' => $template->room_tier,
-                'bathroom_count' => $template->bathroom_count,
-                'scheduling_mode' => $template->scheduling_mode,
-                'recurring_days' => $template->recurring_days,
-                'start_date' => $template->start_date,
-                'projected_duration_minutes' => $timeResult['projected_minutes'] - $timeResult['break_minutes'],
-                'break_minutes' => $timeResult['break_minutes'],
-                'distance_km' => $template->distance_km,
-                'transport_deposit' => $pricingResult['transport_deposit'],
-                'subtotal' => $pricingResult['subtotal'],
-                'total' => $pricingResult['total'],
-                'ser_commission' => $pricingResult['ser_commission'],
-                'cleaner_payout' => $pricingResult['cleaner_payout'],
-                'status' => 'pending_payment',
-            ]);
-
-            // Add addons to booking
-            foreach ($template->addon_config as $addonItem) {
-                BookingAddon::create([
-                    'booking_id' => $booking->id,
-                    'service_addon_id' => $addonItem['addon_id'],
-                    'quantity' => $addonItem['count'],
-                ]);
-            }
-
-            return $booking;
-        });
-    }
-
-    private function buildAddonDurations(?array $addonConfig): array
-    {
-        if (empty($addonConfig)) {
-            return [];
-        }
-
-        return array_map(function ($item) {
-            $addon = ServiceAddon::find($item['addon_id']);
-            return [
-                'addon_id' => $addon->id,
-                'name' => $addon?->name ?? '',
-                'duration_minutes' => $addon?->duration_minutes ?? 0,
-                'count' => $item['count'],
-            ];
-        }, $addonConfig);
     }
 
     private function formatTemplate(RecurringTemplate $template): array
@@ -730,28 +542,7 @@ class CleaningBookingController extends Controller
         return response()->json(['data' => ['message' => 'Availability updated']]);
     }
 
-    private function daysToMask(array $days): int
-    {
-        $dayMap = ['sunday' => 0, 'monday' => 1, 'tuesday' => 2, 'wednesday' => 3, 'thursday' => 4, 'friday' => 5, 'saturday' => 6];
-        $mask = 0;
-        foreach ($days as $day) {
-            $day = strtolower($day);
-            if (isset($dayMap[$day])) {
-                $mask |= (1 << $dayMap[$day]);
-            }
-        }
-        return $mask;
-    }
 
-    private function getProviderTransportRate(?int $providerServiceId): ?float
-    {
-        if (!$providerServiceId) {
-            return null;
-        }
-
-        $ps = \App\Models\ServiceProvider\ProviderService::find($providerServiceId);
-        return $ps && $ps->transport_rate ? (float) $ps->transport_rate : null;
-    }
 
     public function requestUpgrade(int $id): JsonResponse
     {
@@ -763,239 +554,83 @@ class CleaningBookingController extends Controller
             ], 422);
         }
 
-        $existing = \App\Models\Cleaning\UpgradeRequest::where('booking_id', $id)->where('status', 'pending')->first();
-        if ($existing) {
-            return response()->json([
-                'error' => ['code' => 'upgrade_pending', 'message' => 'A pending upgrade request already exists for this booking.'],
-            ], 422);
+        $result = $this->upgradeRequestService->requestUpgrade($booking);
+
+        if (isset($result['error'])) {
+            return response()->json($result['error'], 422);
         }
 
-        // Calculate price difference based on room_tier
-        $standardPrice = $this->pricingEngine->getPackagePrice('standard', $booking->room_tier);
-        $deepPrice = $this->pricingEngine->getPackagePrice('deep', $booking->room_tier);
-        $priceDifference = $deepPrice - $standardPrice;
-
-        $upgradeRequest = \App\Models\Cleaning\UpgradeRequest::create([
-            'booking_id' => $booking->id,
-            'provider_id' => $booking->employee_id ?? 0,
-            'client_id' => $booking->user_id,
-            'status' => 'pending',
-            'price_difference' => $priceDifference,
-            'requested_at' => now(),
-        ]);
-
-        return response()->json([
-            'data' => [
-                'id' => $upgradeRequest->id,
-                'booking_id' => $booking->id,
-                'status' => $upgradeRequest->status,
-                'price_difference' => (float) $priceDifference,
-                'message' => 'Upgrade request created. Awaiting client approval.',
-            ],
-        ], 201);
+        return response()->json($result, 201);
     }
 
     public function acceptUpgrade(int $id): JsonResponse
     {
-        $upgradeRequest = \App\Models\Cleaning\UpgradeRequest::findOrFail($id);
+        $result = $this->upgradeRequestService->acceptUpgrade($id);
 
-        if (!$upgradeRequest->isPending()) {
-            return response()->json([
-                'error' => ['code' => 'not_pending', 'message' => 'This upgrade request has already been processed.'],
-            ], 422);
+        if (isset($result['error'])) {
+            $status = $result['error']['code'] === 'forbidden' ? 403 : 422;
+            return response()->json($result['error'], $status);
         }
 
-        $booking = $upgradeRequest->booking;
-
-        if ($upgradeRequest->client_id !== Auth::id()) {
-            return response()->json(['error' => ['code' => 'forbidden', 'message' => 'Access denied.']], 403);
-        }
-
-        $upgradeRequest->update([
-            'status' => 'accepted',
-            'responded_at' => now(),
-            'paid_at' => now(),
-        ]);
-
-        $booking->update(['package_type' => 'deep']);
-
-        // Trigger additional payment collection (stub hook)
-        // PaymentService::collectAdditionalPayment($booking, $upgradeRequest->price_difference);
-
-        return response()->json([
-            'data' => [
-                'upgrade_request_id' => $upgradeRequest->id,
-                'status' => 'accepted',
-                'booking_package_type' => 'deep',
-                'price_difference_charged' => (float) $upgradeRequest->price_difference,
-            ],
-        ]);
+        return response()->json($result);
     }
 
     public function declineUpgrade(int $id): JsonResponse
     {
-        $upgradeRequest = \App\Models\Cleaning\UpgradeRequest::findOrFail($id);
+        $result = $this->upgradeRequestService->declineUpgrade($id);
 
-        if (!$upgradeRequest->isPending()) {
-            return response()->json([
-                'error' => ['code' => 'not_pending', 'message' => 'This upgrade request has already been processed.'],
-            ], 422);
+        if (isset($result['error'])) {
+            $status = $result['error']['code'] === 'forbidden' ? 403 : 422;
+            return response()->json($result['error'], $status);
         }
 
-        if ($upgradeRequest->client_id !== Auth::id()) {
-            return response()->json(['error' => ['code' => 'forbidden', 'message' => 'Access denied.']], 403);
-        }
-
-        $upgradeRequest->update([
-            'status' => 'declined',
-            'responded_at' => now(),
-        ]);
-
-        $booking = $upgradeRequest->booking;
-        $booking->update(['liability_waiver_applied' => true]);
-
-        return response()->json([
-            'data' => [
-                'upgrade_request_id' => $upgradeRequest->id,
-                'status' => 'declined',
-                'liability_waiver_applied' => true,
-            ],
-        ]);
+        return response()->json($result);
     }
 
     public function getUpgradeRequest(int $bookingId): JsonResponse
     {
-        $booking = Booking::findOrFail($bookingId);
+        $result = $this->upgradeRequestService->getUpgradeRequest($bookingId);
 
-        $upgradeRequest = \App\Models\Cleaning\UpgradeRequest::where('booking_id', $bookingId)
-            ->orderByDesc('created_at')
-            ->first();
-
-        if (!$upgradeRequest) {
-            return response()->json(['data' => null]);
-        }
-
-        return response()->json([
-            'data' => [
-                'id' => $upgradeRequest->id,
-                'booking_id' => $upgradeRequest->booking_id,
-                'status' => $upgradeRequest->status,
-                'price_difference' => (float) $upgradeRequest->price_difference,
-                'requested_at' => $upgradeRequest->requested_at->toIso8601String(),
-                'responded_at' => $upgradeRequest->responded_at?->toIso8601String(),
-                'paid_at' => $upgradeRequest->paid_at?->toIso8601String(),
-            ],
-        ]);
+        return response()->json(['data' => $result]);
     }
 
     public function signOff(Request $request, int $id): JsonResponse
     {
         $booking = Booking::findOrFail($id);
 
-        $allowedStatuses = ['in_progress', 'sign_off_pending'];
-        if (!in_array($booking->status, $allowedStatuses)) {
-            return response()->json([
-                'error' => [
-                    'code' => 'invalid_booking_status',
-                    'message' => 'Sign-off is only allowed for bookings that are in progress or awaiting sign-off.',
-                ],
-            ], 422);
-        }
-
-        if ($booking->user_id !== Auth::id()) {
-            return response()->json(['error' => ['code' => 'forbidden', 'message' => 'Access denied.']], 403);
-        }
-
         $validated = $request->validate([
             'photo_evidence_url' => 'nullable|url',
         ]);
 
-        $signOff = \App\Models\Cleaning\SignOff::create([
-            'booking_id' => $booking->id,
-            'client_id' => Auth::id(),
-            'signed_at' => now(),
-            'photo_evidence_url' => $validated['photo_evidence_url'] ?? null,
-        ]);
+        $result = $this->signOffService->executeSignOff($booking, $validated['photo_evidence_url'] ?? null);
 
-        $booking->update([
-            'status' => 'completed',
-            'sign_off_at' => now(),
-        ]);
+        if (isset($result['error'])) {
+            $status = $result['error']['code'] === 'forbidden' ? 403 : 422;
+            return response()->json($result['error'], $status);
+        }
 
-        // Escrow release stub: log commission/payout for future ledger integration
-        \Illuminate\Support\Facades\Log::info('Cleaning sign-off: escrow release', [
-            'booking_id' => $booking->id,
-            'ser_commission' => $booking->ser_commission,
-            'cleaner_payout' => $booking->cleaner_payout,
-            'transport_deposit' => $booking->transport_deposit,
-        ]);
-
-        return response()->json([
-            'data' => [
-                'sign_off_id' => $signOff->id,
-                'booking_status' => 'completed',
-                'signed_at' => $signOff->signed_at->toIso8601String(),
-            ],
-        ]);
+        return response()->json($result);
     }
 
     public function startNoShowClock(int $id): JsonResponse
     {
         $booking = Booking::findOrFail($id);
 
-        if ($booking->status !== 'in_progress') {
-            return response()->json([
-                'error' => [
-                    'code' => 'invalid_booking_status',
-                    'message' => 'No-show clock can only be started for bookings that are in progress.',
-                ],
-            ], 422);
+        $result = $this->bookingClockService->startNoShowClock($booking);
+
+        if (isset($result['error'])) {
+            return response()->json($result['error'], 422);
         }
 
-        $booking->update(['no_show_grace_started_at' => now()]);
-
-        return response()->json([
-            'data' => [
-                'booking_id' => $booking->id,
-                'no_show_grace_started_at' => $booking->no_show_grace_started_at->toIso8601String(),
-                'grace_period_minutes' => 60,
-            ],
-        ]);
+        return response()->json($result);
     }
 
     public function signoffStatus(int $id): JsonResponse
     {
         $booking = Booking::with('addons')->findOrFail($id);
 
-        $signOff = \App\Models\Cleaning\SignOff::where('booking_id', $id)->latest('created_at')->first();
+        $result = $this->signOffService->getSignOffStatus($booking);
 
-        $gracePeriodActive = false;
-        $gracePeriodRemaining = null;
-
-        if ($booking->no_show_grace_started_at) {
-            $graceEndsAt = $booking->no_show_grace_started_at->copy()->addMinutes(60);
-            if (now()->lt($graceEndsAt)) {
-                $gracePeriodActive = true;
-                $gracePeriodRemaining = now()->diffInMinutes($graceEndsAt);
-            }
-        }
-
-        return response()->json([
-            'data' => [
-                'booking_id' => $booking->id,
-                'booking_status' => $booking->status,
-                'sign_off' => $signOff ? [
-                    'id' => $signOff->id,
-                    'signed_at' => $signOff->signed_at->toIso8601String(),
-                    'photo_evidence_url' => $signOff->photo_evidence_url,
-                ] : null,
-                'grace_period' => [
-                    'active' => $gracePeriodActive,
-                    'started_at' => $booking->no_show_grace_started_at?->toIso8601String(),
-                    'remaining_minutes' => $gracePeriodRemaining,
-                    'expires_at' => $booking->no_show_grace_started_at ? $booking->no_show_grace_started_at->copy()->addMinutes(60)->toIso8601String() : null,
-                ],
-            ],
-        ]);
+        return response()->json(['data' => $result]);
     }
 }

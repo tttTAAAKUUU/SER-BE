@@ -60,6 +60,22 @@ class AdminAuthTest extends TestCase
             ->assertJsonStructure(['access_token', 'token_type']);
     }
 
+    public function test_administrator_cannot_login_with_wrong_user_type(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'wrongtype@test.com',
+            'password' => bcrypt('password123'),
+        ]);
+
+        $response = $this->postJson('/api/administrators/login', [
+            'email' => 'wrongtype@test.com',
+            'password' => 'password123',
+            'device_name' => 'test-device',
+        ]);
+
+        $response->assertStatus(401);
+    }
+
     public function test_authenticated_administrator_can_get_profile(): void
     {
         $user = User::factory()->create();

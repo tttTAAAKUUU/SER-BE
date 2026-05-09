@@ -25,7 +25,8 @@ class AvailabilityService
         }
 
         // Get provider's availability for the requested days
-        $requestedDays = $this->extractDaysFromMask($dayMask);
+        $dayMaskObj = new DayMask($dayMask);
+        $requestedDays = $dayMaskObj->toNames();
 
         // Only check if provider has set availability records
         $providerAvailabilityRecords = ProviderAvailability::where('provider_id', $providerId)->get();
@@ -49,7 +50,7 @@ class AvailabilityService
             ->get();
 
         foreach ($existingTemplates as $template) {
-            $templateDays = $this->extractDaysFromMask($this->daysToMask($template->recurring_days ?? []));
+            $templateDays = DayMask::fromNames($template->recurring_days ?? [])->toNames();
 
             $overlap = array_intersect($requestedDays, $templateDays);
             if (!empty($overlap)) {
@@ -89,27 +90,4 @@ class AvailabilityService
         return ProviderAvailability::where('provider_id', $providerId)->get();
     }
 
-    private function extractDaysFromMask(int $mask): array
-    {
-        $days = [];
-        for ($i = 0; $i < 7; $i++) {
-            if ($mask & (1 << $i)) {
-                $days[] = $i;
-            }
-        }
-        return $days;
-    }
-
-    private function daysToMask(array $days): int
-    {
-        $dayMap = ['sunday' => 0, 'monday' => 1, 'tuesday' => 2, 'wednesday' => 3, 'thursday' => 4, 'friday' => 5, 'saturday' => 6];
-        $mask = 0;
-        foreach ($days as $day) {
-            $day = strtolower($day);
-            if (isset($dayMap[$day])) {
-                $mask |= (1 << $dayMap[$day]);
-            }
-        }
-        return $mask;
-    }
 }

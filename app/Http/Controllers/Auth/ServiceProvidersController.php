@@ -51,6 +51,7 @@ class ServiceProvidersController extends Controller
             $request->email,
             $request->password,
             $request->device_name,
+            'service_provider',
         );
     }
 
