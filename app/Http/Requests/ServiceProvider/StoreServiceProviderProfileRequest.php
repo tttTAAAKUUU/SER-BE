@@ -22,7 +22,17 @@ class StoreServiceProviderProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    if (\App\Models\User\User::whereRaw('LOWER(email) = ?', [strtolower($value)])->exists()) {
+                        $fail('The email has already been taken.');
+                    }
+                },
+            ],
             'password' => 'required|string|min:8|confirmed',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -30,6 +40,9 @@ class StoreServiceProviderProfileRequest extends FormRequest
             'dob' => 'required|date',
             'gender' => 'required|in:male,female,other',
             'bio' => 'nullable|string',
+            'service_area' => 'nullable|string|max:255',
+            'service_category_ids' => 'nullable|array',
+            'service_category_ids.*' => 'integer|exists:service_categories,id',
         ];
     }
 }

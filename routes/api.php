@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\CarWash\CarWashAdminController;
 use App\Http\Controllers\Auth\AdministratorsController;
 use App\Http\Controllers\Auth\ServiceProvidersController;
+use App\Http\Controllers\Uploads\ProfilePhotoUploadController;
+use App\Http\Controllers\Uploads\KycDocumentUploadController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\UsersController;
 use App\Http\Controllers\StoreManagerProfileController;
@@ -13,6 +15,10 @@ use App\Http\Controllers\Cleaning\CleaningServicesController;
 use App\Http\Controllers\Admin\Services\ServicesController as AdminServicesController;
 use App\Http\Controllers\Admin\ServiceCategories\ServiceCategoriesController;
 use App\Http\Controllers\Auth\BusinessesController;
+use App\Http\Controllers\Auth\OtpController;
+use App\Http\Controllers\Auth\RegistrationCompletionController;
+use App\Http\Controllers\Auth\RegistrationSessionController;
+use App\Http\Controllers\PublicApi\ServiceCategoriesController as PublicServiceCategoriesController;
 use App\Http\Controllers\Businesses\BusinessEmployeesController;
 use App\Http\Controllers\Businesses\Stores\BookingController;
 use App\Http\Controllers\Businesses\Stores\BusinessServicesController;
@@ -25,6 +31,21 @@ use App\Http\Controllers\ServiceProvider\ProviderServiceRequestsController;
 use App\Http\Controllers\ServiceProvider\ServiceProviderServicesController;
 use App\Http\Controllers\User\Bookings\UserBookingsController;
 use App\Http\Controllers\User\UserServiceRequestsController;
+
+// Auth OTP routes (public)
+Route::group(['prefix' => 'auth'], function () {
+    Route::post('/send-otp', [OtpController::class, 'send']);
+    Route::post('/verify-otp', [OtpController::class, 'verify']);
+});
+
+// Service Categories (public)
+Route::get('/service-categories', [PublicServiceCategoriesController::class, 'index']);
+
+// Profile Photo Upload (public - for registration flow)
+Route::post('/uploads/profile-photo', [ProfilePhotoUploadController::class, 'store']);
+
+// KYC Document Upload (public)
+Route::post('/uploads/kyc-documents', [KycDocumentUploadController::class, 'store']);
 
 // Public routes
 Route::group(['prefix' => 'services'], function () {
@@ -141,6 +162,9 @@ Route::group(['prefix' => 'users'], function () {
 Route::group(['prefix' => 'service-providers'], function () {
     Route::post('/register', [ServiceProvidersController::class, 'register']);
     Route::post('/login', [ServiceProvidersController::class, 'login']);
+    Route::post('/complete-registration', [RegistrationCompletionController::class, 'complete']);
+    Route::post('/registration/session', [RegistrationSessionController::class, 'store']);
+    Route::get('/registration/session/{token}', [RegistrationSessionController::class, 'show']);
 
     // Protected routes
     Route::middleware('auth:sanctum')->group(function () {

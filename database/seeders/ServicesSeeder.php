@@ -224,7 +224,9 @@ class ServicesSeeder extends Seeder
         foreach ($this->serviceData['service_categories'] as $category) {
             $createdCategory = ServiceCategory::create([
                 'name' => $category['name'],
+                'slug' => \Illuminate\Support\Str::slug($category['name']),
                 'description' => $category['description'],
+                'icon' => $category['icon'] ?? 'tools',
                 'is_active' => $category['is_active'] ?? true,
             ]);
 

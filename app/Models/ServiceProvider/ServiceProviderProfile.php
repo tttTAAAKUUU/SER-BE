@@ -4,6 +4,7 @@ namespace App\Models\ServiceProvider;
 
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\CarWash\WasherAddon;
 use App\Models\CarWash\WasherAvailability;
@@ -35,12 +36,17 @@ class ServiceProviderProfile extends Model
         'washer_tier_approved_at',
         'washer_equipment_verified',
         'washer_next_verification_at',
+        'service_area',
+        'registration_completed_at',
+        'kyc_status',
+        'id_number',
     ];
 
     protected $casts = [
         'washer_tier_approved_at' => 'datetime',
         'washer_equipment_verified' => 'boolean',
         'washer_next_verification_at' => 'datetime',
+        'registration_completed_at' => 'datetime',
     ];
 
     public function isProTech(): bool
@@ -91,5 +97,15 @@ class ServiceProviderProfile extends Model
     public function availabilities(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(WasherAvailability::class);
+    }
+
+    public function serviceCategories(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            \App\Models\Service\ServiceCategory::class,
+            'service_provider_service_category',
+            'service_provider_profile_id',
+            'service_category_id'
+        );
     }
 }

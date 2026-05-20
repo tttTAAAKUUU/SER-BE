@@ -79,7 +79,7 @@ class UserRegistrationService
                 'password' => Hash::make($data['password']),
             ]);
 
-            return ServiceProviderProfile::create([
+            $profileData = [
                 'user_id'    => $user->id,
                 'first_name' => $data['first_name'],
                 'last_name'  => $data['last_name'],
@@ -87,7 +87,17 @@ class UserRegistrationService
                 'dob'        => $data['dob'],
                 'gender'     => $data['gender'],
                 'bio'        => $data['bio'] ?? null,
-            ]);
+                'service_area' => $data['service_area'] ?? null,
+            ];
+
+            $profile = ServiceProviderProfile::create($profileData);
+
+            // Attach service categories if provided
+            if (! empty($data['service_category_ids'])) {
+                $profile->serviceCategories()->attach($data['service_category_ids']);
+            }
+
+            return $profile;
         });
     }
 
@@ -112,7 +122,7 @@ class UserRegistrationService
 
     private function ensureEmailIsUnique(string $email): void
     {
-        if (User::where('email', $email)->exists()) {
+        if (User::whereRaw('LOWER(email) = ?', [strtolower($email)])->exists()) {
             throw new EmailTakenException($email);
         }
     }

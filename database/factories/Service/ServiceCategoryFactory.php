@@ -18,7 +18,10 @@ class ServiceCategoryFactory extends Factory
     {
         return [
             'name' => fake()->unique()->word(),
+            'slug' => fake()->unique()->slug(2),
             'description' => fake()->sentence(),
+            'icon' => fake()->randomElement(['car', 'home', 'fitness', 'cleaning', 'tools']),
+            'is_active' => true,
         ];
     }
 }
